@@ -8,6 +8,7 @@
 #include <set>
 #include <fstream>
 #include <string>
+#include "Vars.h"
 #include "State.h"
 #include "Trans.h"
 #include "Spec.h"
@@ -16,10 +17,13 @@ class Module {
 private:
 	std::string module_name;
 	char *filename;
+
+	Vars vars;  // 变量集
 	State state0;   // 初始状态
+	Trans trans;    // 转移关系
+	Spec spec;  // LTL
+
 	std::set<State> states;    // 状态路径
-	Trans trans;
-	Spec spec;
 public:
 	bool readSMVFromFile();
 

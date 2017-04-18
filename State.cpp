@@ -3,3 +3,8 @@
 //
 
 #include "State.h"
+
+bool State::setVarInitValue(std::string name, int value) {
+	var_value[name] = value;
+	return true;
+}

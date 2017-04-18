@@ -11,10 +11,10 @@ int main(int argc, char **argv) {
 		return 1;
 	}
 
-	Module module();
-	module().setFile(argv[1]);
-	module().readSMVFromFile();
-	module().generateStates();
+	Module module;
+	module.setFile(argv[1]);
+	module.readSMVFromFile();
+	module.generateStates();
 
 
 }

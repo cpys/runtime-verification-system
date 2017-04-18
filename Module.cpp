@@ -15,7 +15,7 @@ bool Module::readSMVFromFile() {
 			while (file >> var_name && var_name != "VAR_END") {
 				int min, max;
 				file >> min >> max;
-				state0.setVarRange(var_name, min, max);
+				vars.setVarRange(var_name, min, max);
 			}
 		} else if (s == "ASSIGN") {
 			std::string init;
@@ -48,6 +48,10 @@ bool Module::readSMVFromFile() {
 			}
 		}
 	}
+}
+
+bool Module::generateStates() {
+	// TODO
 }
 
 bool Module::setFile(char *filename) {

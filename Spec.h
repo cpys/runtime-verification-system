@@ -9,6 +9,7 @@
 #include <utility>
 #include <string>
 #include <map>
+#include <climits>
 
 class Spec {
 private:
