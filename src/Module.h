@@ -31,6 +31,8 @@ public:
 	bool generateStates();  // 生成状态路径，直到状态重复
 
 	bool setFile(char *filename);
+
+	std::vector<State> getStatePath();
 };
 
 

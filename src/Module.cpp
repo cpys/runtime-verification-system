@@ -25,7 +25,6 @@ bool Module::readSMVFromFile() {
 				file >> var_name >> value;
 				state0.setVarInitValue(var_name, value);
 			}
-			std::cout << state0 << std::endl;
 		} else if (s == "TRANS") {
 			std::string var_name;
 			while (file >> var_name && var_name != "TRANS_END") {
@@ -67,4 +66,8 @@ bool Module::generateStates() {
 
 bool Module::setFile(char *filename) {
 	this->filename = filename;
+}
+
+std::vector<State> Module::getStatePath() {
+	return state_path;
 }

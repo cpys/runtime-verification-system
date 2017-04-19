@@ -16,5 +16,11 @@ int main(int argc, char **argv) {
 	module.readSMVFromFile();
 	module.generateStates();
 
+	std::vector<State> state_path = module.getStatePath();
+	for (int i = 0; i < state_path.size(); i++) {
+		std::cout << "------------state " << i << "----------" << std::endl;
+		std::cout << state_path[i] << std::ends;
+	}
+
 	return 0;
 }
