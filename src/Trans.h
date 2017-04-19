@@ -9,6 +9,7 @@
 #include <utility>
 #include <string>
 #include <map>
+#include "State.h"
 
 class Trans {
 private:
@@ -18,6 +19,8 @@ public:
 	bool addTrans(std::string, int, int);
 
 	bool addDefaultTrans(std::string, int);
+
+	bool getNextState(State &state);
 };
 
 

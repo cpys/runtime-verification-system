@@ -8,6 +8,7 @@
 #include <map>
 #include <string>
 #include <set>
+#include <iostream>
 
 class State {
 private:
@@ -15,6 +16,17 @@ private:
 	std::map<std::string, int> var_value;
 public:
 	bool setVarInitValue(std::string, int);
+
+	friend std::ostream &operator<<(std::ostream &os, State &state) {
+		for (auto &vv : state.var_value) {
+			os << vv.first << " : " << vv.second << std::endl;
+		}
+		return os;
+	}
+
+	std::map<std::string, int> getVarValue();
+
+	bool setVarValue(std::map<std::string, int>);
 };
 
 

@@ -25,6 +25,7 @@ bool Module::readSMVFromFile() {
 				file >> var_name >> value;
 				state0.setVarInitValue(var_name, value);
 			}
+			std::cout << state0 << std::endl;
 		} else if (s == "TRANS") {
 			std::string var_name;
 			while (file >> var_name && var_name != "TRANS_END") {
@@ -51,7 +52,17 @@ bool Module::readSMVFromFile() {
 }
 
 bool Module::generateStates() {
-	// TODO
+	State state = state0;
+	//while (states.find(state) != states.end()) {
+	for (int i = 0; i < 10; i++) {
+		// 将新状态添加
+		state_path.push_back(state);
+		//states.insert(state);
+
+		// 开始转移
+		trans.getNextState(state);
+	}
+	return true;
 }
 
 bool Module::setFile(char *filename) {

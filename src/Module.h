@@ -5,7 +5,7 @@
 #ifndef RUNTIME_VERIFICATION_SYSTEM_MODULE_H
 #define RUNTIME_VERIFICATION_SYSTEM_MODULE_H
 
-#include <set>
+#include <vector>
 #include <fstream>
 #include <string>
 #include "Vars.h"
@@ -23,7 +23,8 @@ private:
 	Trans trans;    // 转移关系
 	Spec spec;  // LTL
 
-	std::set<State> states;    // 状态路径
+	std::vector<State> state_path;    // 状态路径
+	//std::set<State> states;     // 状态集合
 public:
 	bool readSMVFromFile();
 

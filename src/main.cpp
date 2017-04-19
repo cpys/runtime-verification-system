@@ -16,5 +16,5 @@ int main(int argc, char **argv) {
 	module.readSMVFromFile();
 	module.generateStates();
 
-
+	return 0;
 }
