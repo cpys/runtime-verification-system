@@ -4,7 +4,7 @@
 
 #include <iostream>
 #include "Module.h"
-#include "../lib/api/c++/z3++.h"
+#include <z3++.h>
 
 using namespace z3;
 
