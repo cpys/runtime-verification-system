@@ -4,8 +4,16 @@
 
 #include "Module.h"
 
+Module::Module(int depth){
+    this->depth = depth;
+}
+
 bool Module::readSMVFromFile() {
 	std::ifstream file(filename);
+    if (!file.is_open()){
+        std::cout << "Error: cannot open file!" << std::endl;
+        exit(1);
+    }
 	std::string s;
 	while (file >> s) {
 		if (s == "MODULE") {
@@ -48,12 +56,13 @@ bool Module::readSMVFromFile() {
 			}
 		}
 	}
+    return true;
 }
 
 bool Module::generateStates() {
 	State state = state0;
 	//while (states.find(state) != states.end()) {
-	for (int i = 0; i < 10; i++) {
+	for (int i = 0; i < depth; i++) {
 		// 将新状态添加
 		state_path.push_back(state);
 		//states.insert(state);
@@ -70,4 +79,8 @@ bool Module::setFile(char *filename) {
 
 std::vector<State> Module::getStatePath() {
 	return state_path;
+}
+
+void Module::setBmcDepth(int depth) {
+    this->depth = depth;
 }

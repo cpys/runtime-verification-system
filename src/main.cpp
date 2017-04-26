@@ -3,8 +3,11 @@
 //
 
 #include <iostream>
+#include <string>
+#include <algorithm>
 #include "Module.h"
 #include <z3++.h>
+//#include "../api/c++/z3++.h"
 
 using namespace z3;
 
@@ -36,23 +39,26 @@ void demorgan() {
 }
 
 int main(int argc, char **argv) {
-	if (argc != 2) {
-		std::cout << "useage: " << argv[0] << " filename" << std::endl;
+	if (argc < 2) {
+		std::cout << "usage: " << argv[0] << " filename [-bmc n]" << std::endl;
 		return 1;
 	}
 
 	Module module;
+    if (argc > 2){
+        module.setBmcDepth(std::stoi(argv[3]));
+    }
 	module.setFile(argv[1]);
 	module.readSMVFromFile();
 	module.generateStates();
 
 	std::vector<State> state_path = module.getStatePath();
 	for (int i = 0; i < state_path.size(); i++) {
-		std::cout << "------------state " << i << "----------" << std::endl;
-		std::cout << state_path[i] << std::ends;
+		std::cout << "--state " << i << "--" << std::endl;
+		std::cout << state_path[i] << std::endl;
 	}
 
-	demorgan();
+	//demorgan();
 
 	return 0;
 }
