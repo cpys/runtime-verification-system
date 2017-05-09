@@ -25,14 +25,20 @@ private:
 
 	std::vector<State> state_path;    // 状态路径
 	//std::set<State> states;     // 状态集合
+
+	int depth;
 public:
+	explicit Module(int depth = 10);	// 默认构造函数
+
 	bool readSMVFromFile();
 
 	bool generateStates();  // 生成状态路径，直到状态重复
 
-	bool setFile(char *filename);
+	bool setFile(char *);
 
 	std::vector<State> getStatePath();
+
+	void setBmcDepth(int);	// 设置状态搜索树最大深度
 };
 
 

@@ -20,7 +20,7 @@ bool Trans::getNextState(State &state) {
 		if (var_trans.find({vv.first, vv.second}) != var_trans.end()) {
 			vv.second = var_trans[{vv.first, vv.second}];
 		} else if (default_trans.find(vv.first) != default_trans.end()) {
-			vv.second = default_trans[vv.first];
+			vv.second += default_trans[vv.first];
 		}
 	}
 	state.setVarValue(var_value);
