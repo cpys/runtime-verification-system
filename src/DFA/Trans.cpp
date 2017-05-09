@@ -3,3 +3,8 @@
 //
 
 #include "Trans.h"
+
+bool Trans::addTran(int state_from, Tran tran) {
+    this->trans[state_from] = tran;
+    return true;
+}

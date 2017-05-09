@@ -24,26 +24,38 @@ bool XmlParser::parseXml() {
 
     XMLElement* cell = root->FirstChildElement();
 
+    // 先解析结点
     do {
         if (cell == NULL || strcmp(cell->Value(), "mxCell") != 0) return false;
 
-        // 解析cell
-        if (cell->Attribute("vertex")) {
-            if (strcmp(cell->Attribute("parent"), "1") == 0) {
-                // 处理结点
-                string node_value = cell->Attribute("value");
-                cout << "结点" << cell->Attribute("id") << ", 值" << node_value << endl;
-            }
-            else if (cell->Attribute("parent")) {
-                // 处理边上的转移条件
-                string tran_value = cell->Attribute("value");
-                int parent_edge = stoi(cell->Attribute("parent"));
-                cout << "转移条件" << tran_value << ", 在边" << parent_edge << "上" << endl;
-            }
+        if (cell->Attribute("vertex") && strcmp(cell->Attribute("parent"), "1") == 0) {
+            // 处理结点
+            string node_value = cell->Attribute("value");
+            int cell_id = stoi(cell->Attribute("id"));
+            cout << "结点" << cell_id << ", 值" << node_value << endl;
+
+            // 将状态添加到模型中
+            State state(node_value);
+            int state_id = this->module.addState(state);
+
+            // 更新结点id与状态id的对应表
+            this->cell_id_to_state_id[cell_id] = state_id;
+            this->state_id_to_cell_id[state_id] = cell_id;
         }
-        else if (cell->Attribute("edge")) {
+
+        cell = cell->NextSiblingElement();
+    } while (cell != NULL);
+
+    // 再处理边
+    cell = root->FirstChildElement();
+    do {
+        if (cell == NULL || strcmp(cell->Value(), "mxCell") != 0) return false;
+
+        if (cell->Attribute("edge")) {
             // 处理边
-            int source, target;
+            int source, target, cell_id;
+
+            cell_id = stoi(cell->Attribute("id"));
 
             if (cell->Attribute("source")) {
                 source = stoi(cell->Attribute("source"));
@@ -55,7 +67,31 @@ bool XmlParser::parseXml() {
             }
             else target = 0;
 
-            cout << "边" << cell->Attribute("id") << ", 从结点" << source << "到" << target << endl;
+            cout << "边" << cell_id << ", 从结点" << source << "到" << target << endl;
+
+            int state_from = this->cell_id_to_state_id[source];
+            int state_to = this->cell_id_to_state_id[target];
+            Tran tran(state_from, state_to);
+            this->cell_id_to_tran[cell_id] = tran;
+        }
+
+        cell = cell->NextSiblingElement();
+    } while (cell != NULL);
+
+    // 最后处理边上的转移条件
+    cell = root->FirstChildElement();
+    do {
+        if (cell == NULL || strcmp(cell->Value(), "mxCell") != 0) return false;
+
+        if (cell->Attribute("vertex") && strcmp(cell->Attribute("parent"), "1") != 0) {
+            // 处理边上的转移条件
+            string tran_value = cell->Attribute("value");
+            int parent_edge = stoi(cell->Attribute("parent"));
+            cout << "转移条件" << tran_value << ", 在边" << parent_edge << "上" << endl;
+
+            Tran tran = this->cell_id_to_tran[parent_edge];
+            tran.addCondition(tran_value);
+            this->module.addTran(tran);
         }
 
         cell = cell->NextSiblingElement();

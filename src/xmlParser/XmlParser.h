@@ -10,13 +10,18 @@
 #define RUNTIME_VERIFICATION_SYSTEM_XMLPARSER_H
 
 #include <string>
-//#include "../DFA/Module.h"
+#include <map>
+#include "../DFA/Module.h"
 #include "tinyxml2.h"
 
 class XmlParser {
 private:
-    //Module module;  // DFA模型
+    Module module;  // DFA模型
     std::string filename;    // xml文件
+
+    std::map<int, int> cell_id_to_state_id;
+    std::map<int, int> state_id_to_cell_id;
+    std::map<int, Tran> cell_id_to_tran;
 
 public:
     bool setFileName(std::string filename);  // 设置xml文件名

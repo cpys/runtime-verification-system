@@ -19,8 +19,12 @@ private:
     std::string operation;  // 此转移发生时的操作
 
 public:
+    Tran();
+    Tran(int state_from, int state_to);
+
     int getStateFrom();
     int getStateTo();
+    bool addCondition(std::string condition);
 };
 
 

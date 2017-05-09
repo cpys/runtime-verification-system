@@ -19,10 +19,9 @@ private:
     Trans trans;    // 转移集
 
 public:
-    int addVar(std::string);   // 添加变量到变量集，返回变量编号
-    int addState(State state); // 添加状态到状态集，返回状态编号
-    bool addTran(Tran tran);    // 添加转移到转移集
-
+    int addVar(std::string var);   // 添加变量到变量集，返回变量编号
+    int addState(State& state); // 添加状态到状态集，返回状态编号
+    bool addTran(Tran& tran);    // 添加转移到转移集
 };
 
 
