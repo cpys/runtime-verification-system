@@ -29,13 +29,16 @@ bool XmlParser::parseXml() {
 
         // 解析cell
         if (cell->Attribute("vertex")) {
-            if (cell->Attribute("parent") == "1") {
+            if (strcmp(cell->Attribute("parent"), "1") == 0) {
                 // 处理结点
                 string node_value = cell->Attribute("value");
+                cout << "结点" << cell->Attribute("id") << ", 值" << node_value << endl;
             }
             else if (cell->Attribute("parent")) {
                 // 处理边上的转移条件
                 string tran_value = cell->Attribute("value");
+                int parent_edge = stoi(cell->Attribute("parent"));
+                cout << "转移条件" << tran_value << ", 在边" << parent_edge << "上" << endl;
             }
         }
         else if (cell->Attribute("edge")) {
@@ -51,6 +54,8 @@ bool XmlParser::parseXml() {
                 target = stoi(cell->Attribute("target"));
             }
             else target = 0;
+
+            cout << "边" << cell->Attribute("id") << ", 从结点" << source << "到" << target << endl;
         }
 
         cell = cell->NextSiblingElement();
