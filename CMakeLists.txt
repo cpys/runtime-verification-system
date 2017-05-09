@@ -9,7 +9,9 @@ set(EXECUTABLE_OUTPUT_PATH ${PROJECT_BINARY_DIR}/bin)
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 
-aux_source_directory(src DIR_SRCS)
+#aux_source_directory(src DIR_SRCS)
+
+set(DIR_SRCS src/xmlParser/xmlParserTest.cpp src/xmlParser/XmlParser.cpp src/xmlParser/tinyxml2.cpp)
 
 add_executable(rvs ${DIR_SRCS})
 
