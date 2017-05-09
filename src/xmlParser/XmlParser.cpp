@@ -15,12 +15,46 @@ bool XmlParser::setFileName(std::string filename) {
 bool XmlParser::parseXml() {
     XMLDocument xmlDocument;
     xmlDocument.LoadFile(filename.c_str());
-    XMLNode* root = xmlDocument.FirstChild();
-    cout << root->Value() << endl;
 
-    XMLText* rootText = root->ToText();
-    cout << rootText->Value() << endl;
+    XMLElement* model = xmlDocument.FirstChildElement();
+    if (model == NULL || strcmp(model->Value(), "mxGraphModel") != 0) return false;
 
+    XMLElement* root = model->FirstChildElement();
+    if (root == NULL || strcmp(root->Value(), "root") != 0) return false;
+
+    XMLElement* cell = root->FirstChildElement();
+
+    do {
+        if (cell == NULL || strcmp(cell->Value(), "mxCell") != 0) return false;
+
+        // 解析cell
+        if (cell->Attribute("vertex")) {
+            if (cell->Attribute("parent") == "1") {
+                // 处理结点
+                string node_value = cell->Attribute("value");
+            }
+            else if (cell->Attribute("parent")) {
+                // 处理边上的转移条件
+                string tran_value = cell->Attribute("value");
+            }
+        }
+        else if (cell->Attribute("edge")) {
+            // 处理边
+            int source, target;
+
+            if (cell->Attribute("source")) {
+                source = stoi(cell->Attribute("source"));
+            }
+            else source = 0;
+
+            if (cell->Attribute("target")) {
+                target = stoi(cell->Attribute("target"));
+            }
+            else target = 0;
+        }
+
+        cell = cell->NextSiblingElement();
+    } while (cell != NULL);
 
     return true;
 }
