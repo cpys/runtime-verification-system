@@ -9,6 +9,8 @@
 #ifndef RUNTIME_VERIFICATION_SYSTEM_VARS_H
 #define RUNTIME_VERIFICATION_SYSTEM_VARS_H
 
+#include <string>
+#include <map>
 
 class Vars {
 private:
