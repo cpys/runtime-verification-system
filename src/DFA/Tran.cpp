@@ -4,12 +4,16 @@
 
 #include "Tran.h"
 
-Tran::Tran(int state_from, int state_to) {
+Tran::Tran() {
+    this->state_from = this->state_to = 0;
+}
+
+Tran::Tran(const int& state_from, const int& state_to) {
     this->state_from = state_from;
     this->state_to = state_to;
 }
 
-bool Tran::addCondition(std::string condition) {
+bool Tran::addCondition(std::string& condition) {
     this->condition = condition;
     return true;
 }

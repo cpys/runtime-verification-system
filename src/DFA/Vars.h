@@ -20,9 +20,9 @@ private:
 
 public:
     Vars();
-    int addVar(std::string var_name);
-    int getVarNum(std::string var_name);    // 获取变量名称对应的编号，如果变量不存在则添加变量
-    std::string getVarName(int var_num);    // 获取变量编号对应的名称，如果编号不存在返回""
+    int addVar(const std::string& var_name);
+    int getVarNum(const std::string& var_name);    // 获取变量名称对应的编号，如果变量不存在则添加变量
+    std::string getVarName(const int& var_num);    // 获取变量编号对应的名称，如果编号不存在返回""
 };
 
 

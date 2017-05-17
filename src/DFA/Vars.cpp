@@ -8,7 +8,7 @@ Vars::Vars() {
     this->next_var_num = 1;
 }
 
-int Vars::addVar(std::string var_name) {
+int Vars::addVar(const std::string& var_name) {
     if (this->vars_num.find(var_name) != this->vars_num.end()) {
         return this->vars_num[var_name];
     }
@@ -20,10 +20,10 @@ int Vars::addVar(std::string var_name) {
     }
 }
 
-int Vars::getVarNum(std::string var_name) {
+int Vars::getVarNum(const std::string& var_name) {
     return this->addVar(var_name);
 }
 
-std::string Vars::getVarName(int var_num) {
+std::string Vars::getVarName(const int& var_num) {
     return this->vars_name[var_num];
 }

@@ -14,7 +14,11 @@ bool XmlParser::setFileName(std::string filename) {
 
 bool XmlParser::parseXml() {
     XMLDocument xmlDocument;
-    xmlDocument.LoadFile(filename.c_str());
+    XMLError = xmlDocument.LoadFile(filename.c_str());
+    if (XMLError != XML_SUCCESS) {
+        cerr << "Cannot open file " << filename << endl;
+        return false;
+    }
 
     XMLElement* model = xmlDocument.FirstChildElement();
     if (model == NULL || strcmp(model->Value(), "mxGraphModel") != 0) return false;
@@ -35,8 +39,9 @@ bool XmlParser::parseXml() {
             cout << "结点" << cell_id << ", 值" << node_value << endl;
 
             // 将状态添加到模型中
-            State state(node_value);
-            int state_id = this->module.addState(state);
+//            State state(node_value);
+//            int state_id = this->module.addState(state);
+            int state_id = this->module.addState(node_value);
 
             // 更新结点id与状态id的对应表
             this->cell_id_to_state_id[cell_id] = state_id;
@@ -90,8 +95,9 @@ bool XmlParser::parseXml() {
             cout << "转移条件" << tran_value << ", 在边" << parent_edge << "上" << endl;
 
             Tran tran = this->cell_id_to_tran[parent_edge];
-            tran.addCondition(tran_value);
-            this->module.addTran(tran);
+//            tran.addCondition(tran_value);
+//            this->module.addTran(tran);
+            this->module.addTran(tran.getStateFrom(), tran.getStateTo(), tran_value);
         }
 
         cell = cell->NextSiblingElement();

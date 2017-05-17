@@ -20,11 +20,11 @@ private:
 
 public:
     Tran();
-    Tran(int state_from, int state_to);
+    Tran(const int& state_from, const int& state_to);
 
     int getStateFrom();
     int getStateTo();
-    bool addCondition(std::string condition);
+    bool addCondition(std::string& condition);
 };
 
 

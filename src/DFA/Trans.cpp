@@ -4,7 +4,7 @@
 
 #include "Trans.h"
 
-bool Trans::addTran(int state_from, Tran tran) {
-    this->trans[state_from].push_back(tran);
+bool Trans::addTran(Tran& tran) {
+    this->trans[tran.getStateFrom()].push_back(tran);
     return true;
 }

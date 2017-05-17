@@ -3,7 +3,7 @@
 //
 
 #include <iostream>
-#include "XmlParser.h"
+#include "xmlParser/XmlParser.h"
 using namespace std;
 
 int main(int argc, char** argv) {

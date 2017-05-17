@@ -15,10 +15,11 @@
 class State {
 private:
     std::map<int, int> vars_value;  // 变量对应的值
+    std::string state_string;
 
 public:
     State();
-    explicit State(std::string state_string);
+    explicit State(std::string& state_string);
 
     bool setVarValue(int var_num, int var_value);   // 设置状态中变量的值
     bool addVarValue(int var_num, int var_value);

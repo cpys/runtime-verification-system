@@ -18,7 +18,7 @@ private:
     std::map<int, std::vector<Tran> > trans;    // 状态编号对应的转移列表
 
 public:
-    bool addTran(int state_from, Tran tran);    // 向转移集中添加一条转移
+    bool addTran(Tran& tran);    // 向转移集中添加一条转移
 
 };
 
