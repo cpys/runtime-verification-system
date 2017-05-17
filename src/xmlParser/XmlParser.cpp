@@ -14,8 +14,8 @@ bool XmlParser::setFileName(std::string filename) {
 
 bool XmlParser::parseXml() {
     XMLDocument xmlDocument;
-    XMLError = xmlDocument.LoadFile(filename.c_str());
-    if (XMLError != XML_SUCCESS) {
+    XMLError xmlError = xmlDocument.LoadFile(filename.c_str());
+    if (xmlError != XML_SUCCESS) {
         cerr << "Cannot open file " << filename << endl;
         return false;
     }
