@@ -13,7 +13,7 @@ Tran::Tran(const int& state_from, const int& state_to) {
     this->state_to = state_to;
 }
 
-bool Tran::addCondition(std::string& condition) {
+bool Tran::addCondition(const std::string& condition) {
     this->condition = condition;
     return true;
 }
@@ -24,4 +24,8 @@ int Tran::getStateFrom() {
 
 int Tran::getStateTo() {
     return this->state_to;
+}
+
+std::string Tran::getCondition() {
+    return this->condition;
 }

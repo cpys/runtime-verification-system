@@ -24,7 +24,9 @@ public:
 
     int getStateFrom();
     int getStateTo();
-    bool addCondition(std::string& condition);
+    bool addCondition(const std::string& condition);
+
+    std::string getCondition();
 };
 
 

@@ -31,5 +31,6 @@ bool Module::addTran(const int &source, const int &target, const std::string &co
     // TODO
     // 根据condition解析转移中的变量表达式，填入新建的Tran中
     Tran tran(source, target);
+    tran.addCondition(condition);
     return this->trans.addTran(tran);
 }
