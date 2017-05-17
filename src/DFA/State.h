@@ -19,7 +19,7 @@ private:
 
 public:
     State();
-    explicit State(std::string& state_string);
+    explicit State(const std::string& state_string);
 
     bool setVarValue(int var_num, int var_value);   // 设置状态中变量的值
     bool addVarValue(int var_num, int var_value);
@@ -37,6 +37,8 @@ public:
         }
         return this->vars_value < other.vars_value;
     }
+
+    std::string getStateString();
 };
 
 

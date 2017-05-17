@@ -23,7 +23,7 @@ int Module::addVar(const std::string& var) {
 int Module::addState(const std::string &state_string) {
     // TODO
     // 根据state_string解析变量与其值，填入新建的状态中
-    State state;
+    State state(state_string);
     return this->states.addState(state);
 }
 

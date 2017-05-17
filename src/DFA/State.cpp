@@ -6,7 +6,7 @@
 
 State::State() {}
 
-State::State(std::string& state_string) {
+State::State(const std::string& state_string) {
     // TODO
     // 根据表达式解析出变量和值填入状态
     this->state_string = state_string;
@@ -23,4 +23,8 @@ bool State::addVarValue(int var_num, int var_value) {
 
 int State::getVarValue(int var_num) {
     return this->vars_value[var_num];
+}
+
+std::string State::getStateString() {
+    return this->state_string;
 }
