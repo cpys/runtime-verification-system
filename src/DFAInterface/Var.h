@@ -5,9 +5,12 @@
 #ifndef RUNTIME_VERIFICATION_SYSTEM_VAR_H
 #define RUNTIME_VERIFICATION_SYSTEM_VAR_H
 
+#include <string>
+using std::string;
+
 class Var {
 public:
-    virtual Var();
+    Var();
     virtual ~Var();
 
     /*

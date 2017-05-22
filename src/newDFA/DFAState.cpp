@@ -5,6 +5,7 @@
 #include <regex>
 #include <sstream>
 #include "DFAState.h"
+#include "DFAVar.h"
 
 DFAState::DFAState() {
     this->stateNum = -1;
@@ -54,7 +55,7 @@ int DFAState::getNextState() {
     return -1;
 }
 
-bool checkCondition(string* condition) {
+bool DFAState::checkCondition(string* condition) {
     // 当前要求条件表达式如以下形式
     // 变量名 关系运算符 变量值
     regex re("[[:space:]]*([a-zA-Z_][a-zA-Z0-9_]*)[[:space:]]*(==|!=|<|<=|>|>=)[[:space:]]*([[:digit:]]+|[[:digit:]]*.[[:digit:]]+)[[:space:]]*");
@@ -63,21 +64,22 @@ bool checkCondition(string* condition) {
     if (sm.size() != 4) return false;
 
     // 先把状态中对应的变量取出
-    Var* var = vars[varName];
+    Var* var = this->vars[sm[1]];
     if (var == NULL) {
         // 变量非法
         // TODO
         return false;
     }
+    string varType = *var->getVarType();
 
     // 再根据条件表达式右边的值定义新的变量
-    Var rVar;
-    rVar.setVarType(var->getVarType());
-    rVar.setVarName(sm[1]);
-    rVar.setVarValue(sm[3]);
+    Var* rVar = new DFAVar();
+    rVar->setVarType(varType);
+    rVar->setVarName(sm[1]);
+    rVar->setVarValue(sm[3]);
 
     // 最后根据关系运算符进行判断
-    if (sm[2] == "==") return rVar == *var;
+    if (sm[2] == "==") return (*rVar) == (*var);
     else if (sm[2] == "!=") return rVar != *var;
     else if (sm[2] == "<") return rVar < *var;
     else if (sm[2] == "<=") return rVar <= *var;

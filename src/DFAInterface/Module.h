@@ -9,6 +9,7 @@
 #include <map>
 #include <vector>
 #include "Var.h"
+#include "State.h"
 using std::string;
 using std::map;
 using std::vector;

@@ -13,9 +13,9 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 
 set(XML_PARSER src/xmlParser/tinyxml2.cpp src/xmlParser/XmlParser.cpp)
 set(DFA src/DFA/Module.cpp src/DFA/State.cpp src/DFA/States.cpp src/DFA/Tran.cpp src/DFA/Trans.cpp src/DFA/Vars.cpp)
-set(newDFA src/newDFA/DFAModule.cpp)
+set(newDFA src/newDFA/DFAModule.cpp src/newDFA/DFASpec.cpp src/newDFA/DFAState.cpp src/newDFA/DFAVar.cpp)
 
-set(DIR_SRCS src/DFATest.cpp ${newDFA})
+set(DIR_SRCS src/newDFATest.cpp ${newDFA})
 
 add_executable(rvs ${DIR_SRCS})
 

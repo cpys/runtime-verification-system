@@ -22,29 +22,29 @@ public:
     string* getVarType();
     string* getVarValue();
 
-    friend operator == (const Var& other) {
-        if (varType != other.getVarType()) return false;
+    bool operator == (Var& other) const {
+        if (*varType != *other.getVarType()) return false;
         return varValue == other.getVarValue();
     }
 
-    friend operator != (const Var& other) {
+    bool operator != (Var& other) {
         return !(*this == other);
     }
 
-    friend operator < (const Var& other) {
+    bool operator < (Var& other) {
         if (varType == NULL || other.getVarType() == NULL) {
             // TODO
             // 类型不能为NULL
         }
         assert(varType == other.getVarType());
-        if (varType == "int") {
-            return stoi(varValue) < stoi(other.getVarValue());
+        if (*varType == "int") {
+            return stoi(*varValue) < stoi(*other.getVarValue());
         }
-        else if (varType == "double") {
-            return stod(varValue) < stod(other.getVarValue());
+        else if (*varType == "double") {
+            return stod(*varValue) < stod(*other.getVarValue());
         }
-        else if (varType == "string") {
-            return varValue < other.getVarValue();
+        else if (*varType == "string") {
+            return *varValue < *other.getVarValue();
         }
         else {
             // TODO
@@ -52,15 +52,15 @@ public:
         }
     }
 
-    friend operator <= (const Var& other) {
+    bool operator <= (Var& other) {
         return (*this == other) || (*this < other);
     }
 
-    friend operator > (const Var& other) {
+    bool operator > (Var& other) {
         return !(*this <= other);
     }
 
-    friend operator >= (const Var& other) {
+    bool operator >= (Var& other) {
         return !(*this < other);
     }
 
