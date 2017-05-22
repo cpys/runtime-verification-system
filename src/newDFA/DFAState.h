@@ -20,12 +20,16 @@ public:
     void addVar(Var*);
     void addTran(int, const string&);
 
-    vector<int> getNextState();
+    int getNextState();
+
+    string toString();
 
 private:
     int stateNum;   // 状态的编号
     map<string, Var*> vars; // 状态里的变量集
     map<int, string*> trans;    // 状态里的转移条件集，目的状态编号：转移条件
+
+    bool checkCondition(string*);   // 检查表达式是否正确
 };
 
 

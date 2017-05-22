@@ -12,6 +12,7 @@
 #include "../DFAInterface/Var.h"
 #include "../DFAInterface/State.h"
 #include "../DFAInterface/Spec.h"
+using namespace std;
 
 using namespace std;
 
@@ -37,6 +38,9 @@ private:
     vector<Spec*> specs;    // 所有验证逻辑的声明
 
     int stateStartNum;  // 起始状态编号
+    int stateTailNum;   // 结束状态编号
+
+    map<int, bool> stateFlag;   // 标识状态的访问
 };
 
 

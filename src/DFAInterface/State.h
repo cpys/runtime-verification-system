@@ -42,10 +42,10 @@ public:
     virtual void addTran(int, const string&) = 0;
 
     /*
-     * 获取在当前状态下能到达的下一个状态编号列表
-     * @return 下一个可达状态的列表
+     * 获取在当前状态下能到达的下一个状态
+     * @return 下一个可达状态
      */
-    virtual vector<int> getNextState() = 0;
+    virtual int getNextState() = 0;
 
 //    /*
 //     * 获取在给定条件时能到达的下一个状态编号
@@ -53,6 +53,12 @@ public:
 //     * @return 下一个可达状态的列表
 //     */
 //    virtual vector<int> getNextState(const string&) = 0;
+
+    /*
+     * 给状态提供一个内容格式化输出
+     * @return 状态内容输出
+     */
+    virtual string toString() = 0;
 };
 
 #endif //RUNTIME_VERIFICATION_SYSTEM_STATE_H

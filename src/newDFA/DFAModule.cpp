@@ -3,6 +3,7 @@
 //
 
 #include <regex>
+#include <iostream>
 #include "DFAModule.h"
 #include "DFAVar.h"
 #include "DFAState.h"
@@ -79,5 +80,45 @@ State* DFAModule::getState(int stateNum) {
 }
 
 void DFAModule::execute() {
+    // 初始化所有结点标识为未访问过
+    this->stateFlag.clear();
+    for (auto& state : this->states) {
+        this->stateFlag[state.first] = false;
+    }
 
+    // 将起始状态结点标识为已访问
+    if (this->stateFlag.find(this->stateStartNum) != this->stateFlag.end()) {
+        this->stateFlag[this->stateStartNum] = true;
+    }
+
+    // 只要未到达结束状态就继续运行
+    int stateNum = this->stateStartNum;
+    while (stateNum != this->stateTailNum) {
+        // 获取当前状态
+        State* state = this->states[stateNum];
+        if (state == NULL) {
+            // TODO
+            // 无法获取当前状态
+            return;
+        }
+
+        // 访问当前状态
+        cout << "this is state " << stateNum << ", " << state->toString() << endl;
+        // 标识被访问的状态为已访问
+        this->stateFlag[stateNum] = true;
+
+        // 获取下面可以到达的状态
+        int nextStateNum = state->getNextState();
+        if (nextStateNum < 0) {
+            // TODO
+            // 无下一个状态
+            break;
+        }
+        else if (this->stateFlag[nextStateNum]) {
+            // TODO
+            // 下一个状态已经访问过了
+            break;
+        }
+        stateNum = nextStateNum;
+    }
 }
