@@ -6,21 +6,16 @@
 #define RUNTIME_VERIFICATION_SYSTEM_STATE_H
 
 #include <string>
-#include <map>
+#include <vector>
+#include "Var.h"
 using std::string;
-using std::map;
+using std::vector;
 
 class State {
 
 public:
-    State() = default;
-    virtual ~State() = default;
-
-    /*
-     * 初始化变量类型
-     * @param <变量名，变量类型>表
-     */
-    virtual void initVarType(const map<string, string>&) = 0;
+    State();
+    virtual ~State();
 
     /*
      * 初始化状态编号
@@ -29,10 +24,16 @@ public:
     virtual void initStateNum(int) = 0;
 
     /*
-     * 初始化状态内容
-     * @param 状态内容
+     * 添加变量
+     * @param 变量
      */
-    virtual void initStateContent(const string&) = 0;
+    virtual void addVar(Var*) = 0;
+
+//    /*
+//     * 初始化状态内容
+//     * @param 状态内容
+//     */
+//    virtual void initStateContent(const string&) = 0;
 
     /*
      * 添加一个转移关系
@@ -41,11 +42,17 @@ public:
     virtual void addTran(int, const string&) = 0;
 
     /*
-     * 获取在给定条件时能到达的下一个状态编号
-     * @param 给定条件
+     * 获取在当前状态下能到达的下一个状态编号列表
      * @return 下一个可达状态的列表
      */
-    virtual vector<int> getNextState(const string&) = 0;
+    virtual vector<int> getNextState() = 0;
+
+//    /*
+//     * 获取在给定条件时能到达的下一个状态编号
+//     * @param 给定条件
+//     * @return 下一个可达状态的列表
+//     */
+//    virtual vector<int> getNextState(const string&) = 0;
 };
 
 #endif //RUNTIME_VERIFICATION_SYSTEM_STATE_H

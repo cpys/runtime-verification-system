@@ -7,14 +7,17 @@
 
 #include <string>
 #include <map>
+#include <vector>
+#include "Var.h"
 using std::string;
 using std::map;
+using std::vector;
 
 class Module {
 
 public:
-    Module() = default;
-    virtual ~Module() = default;
+    Module();
+    virtual ~Module();
 
     /*
      * 初始化变量类型
@@ -26,9 +29,9 @@ public:
 
     /*
      * 添加一个状态
-     * @param 状态编号，状态内容
+     * @param 状态编号，变量列表
      */
-    virtual void addState(int, const string&) = 0;
+    virtual void addState(int, vector<Var*>) = 0;
 
     /*
      * 添加一个转移关系
@@ -38,16 +41,22 @@ public:
 
     /*
      * 添加判定逻辑
-     * @param 判定逻辑
+     * @param 时序词，验证内容
      */
-    virtual void addLTL(const string&) = 0;
+    virtual void addSpec(const string&, const string&) = 0;
+
+    /*
+     * 设置起点状态
+     * @param 起点状态编号
+     */
+    virtual void setStartStateNum(int) = 0;
 
     /*
      * 根据状态编号获取状态
      * @param 状态编号
      * @return 状态
      */
-    virtual State getState(int) = 0;
+    virtual State* getState(int) = 0;
 
     /*
      * 执行模型中的判定逻辑

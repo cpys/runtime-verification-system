@@ -7,15 +7,36 @@
 
 #include <string>
 #include <map>
+#include <vector>
 #include "../DFAInterface/Module.h"
+#include "../DFAInterface/Var.h"
+#include "../DFAInterface/State.h"
+#include "../DFAInterface/Spec.h"
+
 using namespace std;
 
-class DFAModule : Module{
+class DFAModule : public Module{
 public:
+    DFAModule();
+    ~DFAModule();
+
     void initVarType(const map<string, string>&);
+    void addState(int, vector<Var*>);
+    void addTran(int, int, const string&);
+    void addSpec(const string&, const string&);
+
+    void setStartStateNum(int);
+
+    State* getState(int);
+
+    void execute();
 
 private:
-    DFAVar vars;
+    map<string, Var*> vars; // 所有变量的声明，名称：变量
+    map<int, State*> states;    // 所有状态的声明，编号：状态
+    vector<Spec*> specs;    // 所有验证逻辑的声明
+
+    int stateStartNum;  // 起始状态编号
 };
 
 

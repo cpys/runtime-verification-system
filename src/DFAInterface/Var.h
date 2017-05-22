@@ -7,8 +7,8 @@
 
 class Var {
 public:
-    virtual Var() = default;
-    virtual ~Var() = default;
+    virtual Var();
+    virtual ~Var();
 
     /*
      * 设置变量名称
@@ -32,19 +32,19 @@ public:
      * 获取变量名称
      * @return 变量名称
      */
-    virtual string getVarName() = 0;
+    virtual string* getVarName() = 0;
 
     /*
      * 获取变量类型
      * @return 变量类型
      */
-    virtual string getVarType() = 0;
+    virtual string* getVarType() = 0;
 
     /*
      * 获取变量值
      * @return 变量值
      */
-    virtual string getVarValue() = 0;
+    virtual string* getVarValue() = 0;
 };
 
 #endif //RUNTIME_VERIFICATION_SYSTEM_VAR_H
