@@ -4,10 +4,10 @@
 
 #include <regex>
 #include <iostream>
-#include "DFAModule.h"
-#include "DFAVar.h"
-#include "DFAState.h"
-#include "DFASpec.h"
+#include "headers/DFAModule.h"
+#include "headers/DFAVar.h"
+#include "headers/DFAState.h"
+#include "headers/DFASpec.h"
 
 DFAModule::DFAModule() {
     this->stateStartNum = -1;

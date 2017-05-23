@@ -2,7 +2,7 @@
 // Created by yingzi on 2017/5/22.
 //
 
-#include "DFAVar.h"
+#include "headers/DFAVar.h"
 
 DFAVar::DFAVar() {
     this->varName = NULL;
@@ -37,15 +37,15 @@ void DFAVar::setVarValue(const string& varValue) {
     this->varValue = new string(varValue);
 }
 
-string* DFAVar::getVarName() {
+string* DFAVar::getVarName() const {
     return this->varName;
 }
 
-string* DFAVar::getVarType() {
+string* DFAVar::getVarType() const {
     return this->varType;
 }
 
-string* DFAVar::getVarValue() {
+string* DFAVar::getVarValue() const {
     return this->varValue;
 }
 

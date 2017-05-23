@@ -6,7 +6,7 @@
 #define RUNTIME_VERIFICATION_SYSTEM_DFASPEC_H
 
 #include <string>
-#include "../DFAInterface/Spec.h"
+#include "../../DFAInterface/Spec.h"
 using namespace std;
 
 class DFASpec : public Spec {
@@ -16,8 +16,8 @@ public:
 
     void setTempWord(const string&);
     void setContent(const string&);
-    string* getTempWord();
-    string* getContent();
+    string* getTempWord() const;
+    string* getContent() const ;
 
 private:
     string* tempWord;   // 时序词

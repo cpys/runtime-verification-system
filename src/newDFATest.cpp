@@ -3,7 +3,7 @@
 //
 
 #include <iostream>
-#include "newDFA/DFAModule.h"
+#include "newDFA/headers/DFAModule.h"
 using namespace std;
 
 int main() {

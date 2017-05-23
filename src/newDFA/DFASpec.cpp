@@ -2,7 +2,7 @@
 // Created by yingzi on 2017/5/22.
 //
 
-#include "DFASpec.h"
+#include "headers/DFASpec.h"
 
 DFASpec::DFASpec() {
     this->tempWord = NULL;
@@ -11,11 +11,11 @@ DFASpec::DFASpec() {
 
 DFASpec::~DFASpec() {
     if (this->tempWord != NULL) {
-        free(this->tempWord);
+        delete(this->tempWord);
         this->tempWord = NULL;
     }
     if (this->content != NULL) {
-        free(this->content);
+        delete(this->content);
         this->content = NULL;
     }
 }
@@ -28,10 +28,10 @@ void DFASpec::setContent(const string & spec) {
     this->content = new string(spec);
 }
 
-string* DFASpec::getTempWord() {
+string* DFASpec::getTempWord() const {
     return this->tempWord;
 }
 
-string* DFASpec::getContent() {
+string* DFASpec::getContent() const {
     return this->content;
 }

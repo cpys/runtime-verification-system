@@ -8,12 +8,10 @@
 #include <string>
 #include <map>
 #include <vector>
-#include "../DFAInterface/Module.h"
-#include "../DFAInterface/Var.h"
-#include "../DFAInterface/State.h"
-#include "../DFAInterface/Spec.h"
-using namespace std;
-
+#include "../../DFAInterface/Module.h"
+#include "../../DFAInterface/Var.h"
+#include "../../DFAInterface/State.h"
+#include "../../DFAInterface/Spec.h"
 using namespace std;
 
 class DFAModule : public Module{

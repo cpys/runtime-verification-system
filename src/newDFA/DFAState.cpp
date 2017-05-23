@@ -4,8 +4,8 @@
 
 #include <regex>
 #include <sstream>
-#include "DFAState.h"
-#include "DFAVar.h"
+#include "headers/DFAState.h"
+#include "headers/DFAVar.h"
 
 DFAState::DFAState() {
     this->stateNum = -1;
@@ -78,17 +78,17 @@ bool DFAState::checkCondition(string* condition) {
     rVar->setVarName(sm[1]);
     rVar->setVarValue(sm[3]);
 
-    // 最后根据关系运算符进行判断
-    if (sm[2] == "==") return (*rVar) == (*var);
-    else if (sm[2] == "!=") return rVar != *var;
-    else if (sm[2] == "<") return rVar < *var;
-    else if (sm[2] == "<=") return rVar <= *var;
-    else if (sm[2] == ">") return rVar > *var;
-    else if (sm[2] == ">=") return rVar >= *var;
-    else {
-        // TODO
-        // 运算符非法
-    }
+//    // 最后根据关系运算符进行判断
+//    if (sm[2] == "==") return (*rVar) == (*var);
+//    else if (sm[2] == "!=") return rVar != *var;
+//    else if (sm[2] == "<") return rVar < *var;
+//    else if (sm[2] == "<=") return rVar <= *var;
+//    else if (sm[2] == ">") return rVar > *var;
+//    else if (sm[2] == ">=") return rVar >= *var;
+//    else {
+//        // TODO
+//        // 运算符非法
+//    }
 
     return false;
 }

@@ -17,8 +17,8 @@ using std::vector;
 class Module {
 
 public:
-    Module();
-    virtual ~Module();
+    Module() = default;
+    virtual ~Module() = default;
 
     /*
      * 初始化变量类型

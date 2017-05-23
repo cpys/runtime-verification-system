@@ -7,8 +7,8 @@
 
 #include <string>
 #include <map>
-#include "../DFAInterface/State.h"
-#include "../DFAInterface/Var.h"
+#include "../../DFAInterface/State.h"
+#include "../../DFAInterface/Var.h"
 using namespace std;
 
 class DFAState : public State {

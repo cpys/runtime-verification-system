@@ -14,8 +14,8 @@ using std::vector;
 class State {
 
 public:
-    State();
-    virtual ~State();
+    State() = default;
+    virtual ~State() = default;
 
     /*
      * 初始化状态编号
