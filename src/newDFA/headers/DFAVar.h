@@ -13,66 +13,74 @@ using namespace std;
 class DFAVar : public Var {
 public:
     DFAVar();
+    DFAVar(const string&, const string&, const string&);
     ~DFAVar();
+
     void setVarName(const string&);
     void setVarType(const string&);
     void setVarValue(const string&);
 
     string* getVarName() const;
     string* getVarType() const;
-    string* getVarValue() const;
 
-    bool operator == (Var& other) const {
-        if (*varType != *other.getVarType()) return false;
-        return varValue == other.getVarValue();
+    int getVarValueInt() const;
+    double getVarValueDouble() const;
+    string getVarValueString() const;
+//    string* getVarValue() const;
+
+    bool operator == (const Var& other) const {
+        if (*this->varType == "int") {
+            return this->varValueInt == other.getVarValueInt();
+        }
+        else if (*this->varType == "double") {
+            return this->varValueDouble == other.getVarValueDouble();
+        }
+        else return this->varValueString == other.getVarValueString();
     }
 
-//    friend bool operator == (const Var& a, const Var& b) {
-//        if (a.getVarType() != b.getVarType()) return false;
-//        return a.getVarValue() == b.getVarValue();
-//    }
+    bool operator != (const Var& other) const {
+        return !(*this == other);
+    }
 
-//    bool operator != (Var& other) {
-//        return !(*this == other);
-//    }
-//
-//    bool operator < (Var& other) {
-//        if (varType == NULL || other.getVarType() == NULL) {
-//            // TODO
-//            // 类型不能为NULL
-//        }
-//        assert(varType == other.getVarType());
-//        if (*varType == "int") {
-//            return stoi(*varValue) < stoi(*other.getVarValue());
-//        }
-//        else if (*varType == "double") {
-//            return stod(*varValue) < stod(*other.getVarValue());
-//        }
-//        else if (*varType == "string") {
-//            return *varValue < *other.getVarValue();
-//        }
-//        else {
-//            // TODO
-//            // 不合法的类型
-//        }
-//    }
-//
-//    bool operator <= (Var& other) {
-//        return (*this == other) || (*this < other);
-//    }
-//
-//    bool operator > (Var& other) {
-//        return !(*this <= other);
-//    }
-//
-//    bool operator >= (Var& other) {
-//        return !(*this < other);
-//    }
+    bool operator < (Var& other) {
+        if (*this->varType == "int") {
+            return this->varValueInt < other.getVarValueInt();
+        }
+        else if (*this->varType == "double") {
+            return this->varValueDouble < other.getVarValueDouble();
+        }
+        else if (*this->varType != "string") {
+            // TODO
+            cout << "比较时出现不合法的类型\""  << *this->varType << "\"" << endl;
+        }
+        return this->varValueString < other.getVarValueString();
+    }
+
+    bool operator <= (Var& other) {
+        return (*this == other) || (*this < other);
+    }
+
+    bool operator > (Var& other) {
+        return !(*this <= other);
+    }
+
+    bool operator >= (Var& other) {
+        return !(*this < other);
+    }
 
 private:
     string* varName;
     string* varType;
-    string* varValue;
+//    string* varValue;
+    int varValueInt;
+    double varValueDouble;
+    string varValueString;
+
+    /*
+     * 根据varValue更新int、double、string等变量的值
+     * @return 更新是否成功
+     */
+    bool updateVarTypeValue();
 };
 
 

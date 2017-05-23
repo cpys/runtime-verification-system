@@ -4,6 +4,7 @@
 
 #include <regex>
 #include <sstream>
+#include <iostream>
 #include "headers/DFAState.h"
 #include "headers/DFAVar.h"
 
@@ -64,31 +65,32 @@ bool DFAState::checkCondition(string* condition) {
     if (sm.size() != 4) return false;
 
     // 先把状态中对应的变量取出
-    Var* var = this->vars[sm[1]];
+    DFAVar* var = dynamic_cast<DFAVar*>(this->vars[sm[1]]);
     if (var == NULL) {
         // 变量非法
         // TODO
+        cout << "转移条件中的变量\"" << sm[1] << "\"在当前状态中不存在" << endl;
         return false;
     }
-    string varType = *var->getVarType();
+    string* varType = var->getVarType();
 
     // 再根据条件表达式右边的值定义新的变量
-    Var* rVar = new DFAVar();
-    rVar->setVarType(varType);
-    rVar->setVarName(sm[1]);
+    DFAVar* rVar = new DFAVar();
     rVar->setVarValue(sm[3]);
 
-//    // 最后根据关系运算符进行判断
-//    if (sm[2] == "==") return (*rVar) == (*var);
-//    else if (sm[2] == "!=") return rVar != *var;
-//    else if (sm[2] == "<") return rVar < *var;
-//    else if (sm[2] == "<=") return rVar <= *var;
-//    else if (sm[2] == ">") return rVar > *var;
-//    else if (sm[2] == ">=") return rVar >= *var;
-//    else {
-//        // TODO
-//        // 运算符非法
-//    }
+    // 最后根据关系运算符进行判断
+    if (sm[2] == "==") return *rVar == *var;
+    else if (sm[2] == "!=") return *rVar != *var;
+    else if (sm[2] == "<") return *rVar < *var;
+    else if (sm[2] == "<=") return *rVar <= *var;
+    else if (sm[2] == ">") return *rVar > *var;
+    else if (sm[2] == ">=") return *rVar >= *var;
+    else {
+        // TODO
+        cout << "运算符\"" << sm[2] << "\"不合法" << endl;
+    }
+
+    delete rVar;
 
     return false;
 }
@@ -99,7 +101,7 @@ string DFAState::toString() {
     for (auto& s_var : this->vars) {
         oss << "变量" << s_var.first << ", ";
         oss << "类型" << s_var.second->getVarType() << ", ";
-        oss << "值" << s_var.second->getVarValue() << endl;
+        oss << "值" << s_var.second->getVarValueString() << endl;
     }
     for (auto& tran : this->trans) {
         oss << "从转移条件\"" << tran.second << "\"转移到状态" << tran.first << endl;

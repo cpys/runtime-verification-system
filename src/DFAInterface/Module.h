@@ -24,15 +24,22 @@ public:
      * 初始化变量类型
      * @param <变量名，变量类型>表
      * 变量类型声明格式："变量名:变量类型"
-     * 变量类型可取值："int","long","double","string"
+     * 变量类型可取值："int","double","string"
      */
     virtual void initVarType(const map<string, string>&) = 0;
+
+    /*
+     * 添加一个变量类型
+     * @param 变量名，变量类型
+     * 变量类型可取值："int","double","string"
+     */
+    virtual void addVarType(const string&, const string&) = 0;
 
     /*
      * 添加一个状态
      * @param 状态编号，变量列表
      */
-    virtual void addState(int, vector<Var*>) = 0;
+    virtual void addState(int, const vector<Var*>&) = 0;
 
     /*
      * 添加一个转移关系

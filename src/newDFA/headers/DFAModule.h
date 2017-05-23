@@ -20,7 +20,8 @@ public:
     ~DFAModule();
 
     void initVarType(const map<string, string>&);
-    void addState(int, vector<Var*>);
+    void addVarType(const string&, const string&);
+    void addState(int, const vector<Var*>&);
     void addTran(int, int, const string&);
     void addSpec(const string&, const string&);
 
