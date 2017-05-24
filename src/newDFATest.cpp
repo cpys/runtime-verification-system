@@ -27,17 +27,22 @@ int main() {
     vector <Var*> vars_s2 {var1_s2, var2_s2};
     module->addState(2, vars_s2);
 
+    // 添加状态3
+    Var* var1_s3 = new DFAVar("m_a_int", "int", "78");
+    Var* var2_s3 = new DFAVar("m_b_double", "double", "2300");
+    vector <Var*> vars_s3 {var1_s3, var2_s3};
+    module->addState(3, vars_s3);
+
     // 添加转移
     module->addTran(1, 2, "m_a_int > 100");
+    module->addTran(1, 3, "m_a_int <= 100");
+    module->addTran(2, 3, "m_b_double < 876.5");
 
-//    // 输出状态1的下一个可达状态
-//    int nextStateNum = module->getState(1)->getNextState();
-//    cout << "下一个状态为状态" << nextStateNum << endl;
 
     // 添加判定逻辑
     module->addSpec("G", "m_b_double > 400");
 
-//    // 执行模型
+    // 执行模型
     module->setStartStateNum(1);
     module->execute();
 
