@@ -83,6 +83,10 @@ void DFAModule::setStartStateNum(int startStateNum) {
     this->stateStartNum = startStateNum;
 }
 
+void DFAModule::setTailStateNum(int tailStateNum) {
+    this->stateTailNum = tailStateNum;
+}
+
 State* DFAModule::getState(int stateNum) {
     return this->states[stateNum];
 }

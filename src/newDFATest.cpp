@@ -11,6 +11,7 @@ using namespace std;
 int main() {
     Module* module = new DFAModule();
 
+    // 变量声明
     module->addVarType("m_a_int", "int");
     module->addVarType("m_b_double", "double");
     module->addVarType("m_c_string", "string");
@@ -45,6 +46,7 @@ int main() {
 
     // 执行模型
     module->setStartStateNum(1);
+    module->setTailStateNum(3);
     module->execute();
 
     delete(module);

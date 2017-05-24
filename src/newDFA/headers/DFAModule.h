@@ -26,6 +26,7 @@ public:
     void addSpec(const string&, const string&);
 
     void setStartStateNum(int);
+    void setTailStateNum(int);
 
     State* getState(int);
 

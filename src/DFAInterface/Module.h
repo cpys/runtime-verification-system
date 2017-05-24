@@ -60,6 +60,12 @@ public:
     virtual void setStartStateNum(int) = 0;
 
     /*
+     * 设置终止状态
+     * @param 终止状态编号
+     */
+    virtual void setTailStateNum(int) = 0;
+
+    /*
      * 根据状态编号获取状态
      * @param 状态编号
      * @return 状态
