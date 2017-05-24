@@ -36,6 +36,13 @@ public:
      * @return 验证内容
      */
     virtual string* getContent() const = 0;
+
+    /*
+     * 验证状态是否满足验证内容
+     * @param 状态指针
+     * @return 是否满足
+     */
+    virtual bool verifyState(const State*) = 0;
 };
 
 #endif //RUNTIME_VERIFICATION_SYSTEM_SPEC_H

@@ -72,19 +72,21 @@ bool DFAState::checkCondition(string* condition) {
         cout << "转移条件中的变量\"" << sm[1] << "\"在当前状态中不存在" << endl;
         return false;
     }
-    string* varType = var->getVarType();
+    string varType = *var->getVarType();
 
     // 再根据条件表达式右边的值定义新的变量
     DFAVar* rVar = new DFAVar();
-    rVar->setVarValue(sm[3]);
+    string varValue = sm[3];
+    rVar->setVarType(varType);
+    rVar->setVarValue(varValue);
 
     // 最后根据关系运算符进行判断
-    if (sm[2] == "==") return *rVar == *var;
-    else if (sm[2] == "!=") return *rVar != *var;
-    else if (sm[2] == "<") return *rVar < *var;
-    else if (sm[2] == "<=") return *rVar <= *var;
-    else if (sm[2] == ">") return *rVar > *var;
-    else if (sm[2] == ">=") return *rVar >= *var;
+    if (sm[2] == "==") return *var == *rVar;
+    else if (sm[2] == "!=") return *var != *rVar;
+    else if (sm[2] == "<") return *var < *rVar;
+    else if (sm[2] == "<=") return *var <= *rVar;
+    else if (sm[2] == ">") return *var > *rVar;
+    else if (sm[2] == ">=") return *var >= *rVar;
     else {
         // TODO
         cout << "运算符\"" << sm[2] << "\"不合法" << endl;
@@ -97,15 +99,22 @@ bool DFAState::checkCondition(string* condition) {
 
 string DFAState::toString() {
     ostringstream oss;
-    oss << endl << "状态" << this->stateNum << endl;
+    oss << "-----------------------" << endl;
+    oss << "状态" << this->stateNum << endl;
     for (auto& s_var : this->vars) {
         oss << "变量" << s_var.first << ", ";
-        oss << "类型" << s_var.second->getVarType() << ", ";
+        oss << "类型" << *s_var.second->getVarType() << ", ";
         oss << "值" << s_var.second->getVarValueString() << endl;
     }
-    for (auto& tran : this->trans) {
-        oss << "从转移条件\"" << tran.second << "\"转移到状态" << tran.first << endl;
+    if (this->trans.size() > 0) {
+        oss << "<<<<<<----------->>>>>>" << endl;
+        for (auto &tran : this->trans) {
+            oss << "转移条件：根据条件\"" << *tran.second << "\"转移到状态" << tran.first << endl;
+        }
+//        oss << "<<<<<<-----------------" << endl;
     }
+    oss << "-----------------------" << endl;
+
 
     return oss.str();
 }

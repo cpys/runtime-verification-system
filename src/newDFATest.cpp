@@ -30,14 +30,15 @@ int main() {
     // 添加转移
     module->addTran(1, 2, "m_a_int > 100");
 
-    // 输出状态1的下一个可达状态
-    int nextStateNum = module->getState(1)->getNextState();
-    cout << "下一个状态为状态" << nextStateNum << endl;
+//    // 输出状态1的下一个可达状态
+//    int nextStateNum = module->getState(1)->getNextState();
+//    cout << "下一个状态为状态" << nextStateNum << endl;
 
     // 添加判定逻辑
     module->addSpec("G", "m_b_double > 400");
 
 //    // 执行模型
+    module->setStartStateNum(1);
     module->execute();
 
     delete(module);

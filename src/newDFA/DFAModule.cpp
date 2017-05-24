@@ -124,7 +124,7 @@ void DFAModule::execute() {
             }
 
             // 访问当前状态
-            cout << "访问状态" << stateNum << "：" << state->toString() << endl;
+            cout << state->toString() << endl;
             // 标识被访问的状态为已访问
             this->stateFlag[stateNum] = true;
 
@@ -149,4 +149,6 @@ void DFAModule::execute() {
             cout << "到达终止状态" << stateNum << endl;
         }
     }
+
+    cout << "模型执行结束" << endl;
 }

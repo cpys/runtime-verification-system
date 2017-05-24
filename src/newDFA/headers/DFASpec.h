@@ -7,6 +7,7 @@
 
 #include <string>
 #include "../../DFAInterface/Spec.h"
+#include "../../DFAInterface/State.h"
 using namespace std;
 
 class DFASpec : public Spec {
@@ -19,9 +20,15 @@ public:
     string* getTempWord() const;
     string* getContent() const ;
 
+    bool verifyState(const State*);
+
 private:
     string* tempWord;   // 时序词
     string* content;    // 验证内容
+
+    string* varName;    // 验证内容变量名
+    string* varOperator;    // 验证内容运算符
+    string* varValue;   // 验证内容变量值
 };
 
 
