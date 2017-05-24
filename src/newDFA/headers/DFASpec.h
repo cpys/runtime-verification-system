@@ -20,7 +20,7 @@ public:
     string* getTempWord() const;
     string* getContent() const ;
 
-    bool verifyState(const State*);
+    bool verifyState(State*);
 
 private:
     string* tempWord;   // 时序词
@@ -29,6 +29,11 @@ private:
     string* varName;    // 验证内容变量名
     string* varOperator;    // 验证内容运算符
     string* varValue;   // 验证内容变量值
+
+    /*
+     * 当content发生变化时更新具体的验证内容信息
+     */
+    void updateContentInfo();
 };
 
 

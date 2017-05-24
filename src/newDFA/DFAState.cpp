@@ -45,6 +45,14 @@ void DFAState::addTran(int targetStateNum, const string& tranCondition) {
     this->trans[targetStateNum] = new string(tranCondition);
 }
 
+int DFAState::getStateNum() const {
+    return this->stateNum;
+}
+
+Var* DFAState::getVar(const string& varName) {
+    return this->vars[varName];
+}
+
 int DFAState::getNextState() {
     for (auto& tran : this->trans) {
         string* condition = tran.second;

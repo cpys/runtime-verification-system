@@ -6,6 +6,7 @@
 #define RUNTIME_VERIFICATION_SYSTEM_SPEC_H
 
 #include <string>
+#include "State.h"
 using std::string;
 
 class Spec {
@@ -42,7 +43,7 @@ public:
      * @param 状态指针
      * @return 是否满足
      */
-    virtual bool verifyState(const State*) = 0;
+    virtual bool verifyState(State*) = 0;
 };
 
 #endif //RUNTIME_VERIFICATION_SYSTEM_SPEC_H

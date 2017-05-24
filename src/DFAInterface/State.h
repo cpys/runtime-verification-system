@@ -29,17 +29,24 @@ public:
      */
     virtual void addVar(Var*) = 0;
 
-//    /*
-//     * 初始化状态内容
-//     * @param 状态内容
-//     */
-//    virtual void initStateContent(const string&) = 0;
-
     /*
      * 添加一个转移关系
      * @param 目标状态编号，转移条件
      */
     virtual void addTran(int, const string&) = 0;
+
+    /*
+     * 获取状态编号
+     * @return 状态编号
+     */
+    virtual int getStateNum() const = 0;
+
+    /*
+     * 取出状态中的某个变量
+     * @param 变量名
+     * @return 变量
+     */
+    virtual Var* getVar(const string&) = 0;
 
     /*
      * 获取在当前状态下能到达的下一个状态

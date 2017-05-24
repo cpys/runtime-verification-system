@@ -20,6 +20,9 @@ public:
     void addVar(Var*);
     void addTran(int, const string&);
 
+    int getStateNum() const;
+    Var* getVar(const string&);
+
     int getNextState();
 
     string toString();

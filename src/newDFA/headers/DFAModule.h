@@ -40,6 +40,12 @@ private:
     int stateTailNum;   // 结束状态编号
 
     map<int, bool> stateFlag;   // 标识状态的访问
+
+    /*
+     * 对单条验证逻辑进行验证
+     * @param 验证逻辑
+     */
+    void verifySpec(Spec*);
 };
 
 
