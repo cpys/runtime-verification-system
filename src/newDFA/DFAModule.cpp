@@ -92,7 +92,9 @@ void DFAModule::execute() {
 
     // 依次验证待验证逻辑
     for (auto& spec : this->specs) {
+        cout << "**************************************" << endl;
         this->verifySpec(spec);
+        cout << "**************************************" << endl;
     }
     cout << "模型执行结束" << endl;
 }
@@ -171,6 +173,6 @@ void DFAModule::verifySpec(Spec* spec) {
         stateNum = nextStateNum;
     }
 
-    if (specValid) cout << "模型满足验证条件" << endl;
-    else cout << "模型不满足验证条件" << endl;
+    if (specValid) cout << "模型满足验证条件\"" << spec->toString() << "\"" << endl;
+    else cout << "模型不满足验证条件\"" << spec->toString() << "\"" << endl;
 }

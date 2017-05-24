@@ -111,3 +111,9 @@ void DFASpec::updateContentInfo() {
     }
     this->varValue = new string(sm[3]);
 }
+
+string DFASpec::toString() {
+    ostringstream oss;
+    oss << *this->tempWord << "(" << *this->content << ")";
+    return oss.str();
+}

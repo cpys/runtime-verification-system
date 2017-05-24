@@ -29,7 +29,7 @@ int main() {
 
     // 添加状态3
     Var* var1_s3 = new DFAVar("m_a_int", "int", "78");
-    Var* var2_s3 = new DFAVar("m_b_double", "double", "2300");
+    Var* var2_s3 = new DFAVar("m_b_double", "double", "23");
     vector <Var*> vars_s3 {var1_s3, var2_s3};
     module->addState(3, vars_s3);
 
@@ -41,6 +41,7 @@ int main() {
 
     // 添加判定逻辑
     module->addSpec("G", "m_b_double > 400");
+    module->addSpec("A", "m_a_int > 200");
 
     // 执行模型
     module->setStartStateNum(1);

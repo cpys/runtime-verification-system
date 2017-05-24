@@ -22,6 +22,8 @@ public:
 
     bool verifyState(State*);
 
+    string toString();
+
 private:
     string* tempWord;   // 时序词
     string* content;    // 验证内容

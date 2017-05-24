@@ -44,6 +44,12 @@ public:
      * @return 是否满足
      */
     virtual bool verifyState(State*) = 0;
+
+    /*
+     * 给验证逻辑提供一个格式化输出
+     * @return 格式化输出
+     */
+    virtual string toString() = 0;
 };
 
 #endif //RUNTIME_VERIFICATION_SYSTEM_SPEC_H
