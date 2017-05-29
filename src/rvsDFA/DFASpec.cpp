@@ -4,14 +4,6 @@
 
 #include "DFASpec.h"
 
-DFASpec::DFASpec() {
-
-}
-
-DFASpec::~DFASpec() {
-
-}
-
 void DFASpec::addTempWord(const string & tempWord) {
     this->tempWord = tempWord;
 }

@@ -5,6 +5,11 @@
 #ifndef RUNTIME_VERIFICATION_SYSTEM_TRAN_H
 #define RUNTIME_VERIFICATION_SYSTEM_TRAN_H
 
+#include <string>
+#include "../../api/c++/z3++.h"
+
+using std::string;
+using z3::expr;
 
 class Tran {
 

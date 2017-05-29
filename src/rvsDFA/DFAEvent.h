@@ -13,11 +13,13 @@ using std::set;
 class DFAEvent : public Event {
 
 public:
-    DFAEvent();
-    ~DFAEvent();
+    DFAEvent() = default;
+    ~DFAEvent() override = default;
 
-    void setEventName(const string&);
-    void addExpr(expr&);
+    void setEventName(const string &eventName) override ;
+    void addExpr(expr &exp) override ;
+
+    const string &getEventName() const override ;
 
 private:
     string eventName;

@@ -36,7 +36,7 @@ public:
      * 添加一个转移关系
      * @param 转移名称 源状态编号 目的状态编号 转移关系
      */
-    virtual void addTran(const string&, int, int, const string&) = 0;
+    virtual void addTran(const string&, int, int, const vector<string>&) = 0;
 
     /*
      * 添加一个判定逻辑

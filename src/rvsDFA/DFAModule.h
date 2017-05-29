@@ -5,30 +5,27 @@
 #ifndef RUNTIME_VERIFICATION_SYSTEM_DFAMODULE_H
 #define RUNTIME_VERIFICATION_SYSTEM_DFAMODULE_H
 
-
-
 #include "../rvsDFAInterface/Module.h"
 #include "../rvsDFAInterface/State.h"
 #include "../rvsDFAInterface/Tran.h"
 #include "../rvsDFAInterface/Spec.h"
-
-#include "../../api/c++/z3++.h"
 #include "../rvsDFAInterface/Event.h"
+#include "../../api/c++/z3++.h"
 
 using namespace z3;
 
 class DFAModule : public Module {
 
 public:
-    DFAModule();
-    ~DFAModule();
+    DFAModule() = default;
+    ~DFAModule() override;
 
-    void addVarDecl(const string&, const string&);
-    void addState(int, const vector<string>&);
-    void addTran(const string&, int, int, const string&);
-    void addSpec(const string&, const string&);
-    void addEvent(const string&, map<string, string>&);
-    void check();
+    void addVarDecl(const string &varType, const string &varName) override;
+    void addState(int stateNum, const vector<string> &stateConstraints) override ;
+    void addTran(const string &tranName, int sourceStateName, int destStateNum, const vector<string> &tranConstraints) override ;
+    void addSpec(const string &tempWord, const string &tempConstraint) override ;
+    void addEvent(const string &eventName, map<string, string> &vars) override;
+    void check() override ;
 
 private:
     map<string, string> varsDecl;   // 所有变量声明，变量名：类型
@@ -38,6 +35,13 @@ private:
     vector<Event*> events;  // 所有事件的声明
 
     context ctx;    // 检查状态转移的z3上下文
+
+    /*
+     * 对字符串约束进行解析，提取出expr返回
+     * @param 字符串表示的约束
+     * @return expr
+     */
+    expr extractExpr(const string& constraint);
 };
 
 

@@ -22,18 +22,6 @@ public:
      */
     virtual void setStateNum(int) = 0;
 
-//    /*
-//     * 添加变量约束
-//     * @param 变量约束字符串
-//     */
-//    virtual void addVarConstraint(const string&) = 0;
-
-//    /*
-//     * 获取状态context指针
-//     * @return context指针
-//     */
-//    virtual context* getContext() = 0;
-
     /*
      * 向状态内expr集合中添加expr
      * @param expr
@@ -45,6 +33,12 @@ public:
      * @param 转移指针
      */
     virtual void addTran(Tran*) = 0;
+
+    /*
+     * 获取状态编号
+     * @return 状态编号
+     */
+    virtual int getStateNum() const = 0;
 };
 
 

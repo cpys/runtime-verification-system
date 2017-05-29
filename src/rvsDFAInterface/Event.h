@@ -14,8 +14,8 @@ using z3::expr;
 class Event {
 
 public:
-    Event();
-    virtual ~Event();
+    Event() = default;
+    virtual ~Event() = default;
 
     /*
      * 设置事件名称
@@ -28,6 +28,12 @@ public:
      * @param expr
      */
     virtual void addExpr(expr&) = 0;
+
+    /*
+     * 获取事件名称
+     * @return 事件名称
+     */
+    virtual const string &getEventName() const = 0;
 
 };
 

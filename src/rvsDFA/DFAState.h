@@ -11,22 +11,22 @@
 #include <vector>
 
 #include "../rvsDFAInterface/State.h"
-#include "../../api/c++/z3++.h"
 
 using std::string;
 using std::set;
 using std::vector;
-using namespace z3;
 
 class DFAState : public State{
 
 public:
     DFAState();
-    ~DFAState();
+    ~DFAState() override;
 
-    void setStateNum(int);
-    void addExpr(expr&);
-    void addTran(Tran*);
+    void setStateNum(int stateNum) override;
+    void addExpr(expr &exp) override;
+    void addTran(Tran *tran) override;
+
+    int getStateNum() const override ;
 
 private:
     int stateNum;

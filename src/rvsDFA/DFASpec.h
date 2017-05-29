@@ -13,11 +13,11 @@ using std::set;
 class DFASpec : public Spec {
 
 public:
-    DFASpec();
-    ~DFASpec();
+    DFASpec() = default;
+    ~DFASpec() override = default;
 
-    void addTempWord(const string&);
-    void addExpr(expr&);
+    void addTempWord(const string &tempWord) override;
+    void addExpr(expr &exp) override;
 
 private:
     string tempWord;
