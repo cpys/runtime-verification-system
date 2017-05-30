@@ -6,9 +6,11 @@
 #define RUNTIME_VERIFICATION_SYSTEM_EVENT_H
 
 #include <string>
+#include <set>
 #include "../../api/c++/z3++.h"
 
 using std::string;
+using std::set;
 using z3::expr;
 
 class Event {
@@ -34,6 +36,12 @@ public:
      * @return 事件名称
      */
     virtual const string &getEventName() const = 0;
+
+    /*
+     * 获取expr集合
+     * @return 表达式集合
+     */
+    virtual set<expr> getExps() const = 0;
 
 };
 

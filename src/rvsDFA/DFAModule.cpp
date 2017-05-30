@@ -11,6 +11,11 @@
 
 using std::cout;
 using std::endl;
+using std::cerr;
+
+DFAModule::DFAModule() {
+    this->currentStateNum = -1;
+}
 
 DFAModule::~DFAModule() {
     for (auto& state : this->states) {
@@ -88,7 +93,7 @@ void DFAModule::addSpec(const string &tempWord, const string &tempConstraint) {
     this->specs.push_back(spec);
 }
 
-void DFAModule::addEvent(const string &eventName, map<string, string> &vars) {
+void DFAModule::addEvent(const string &eventName, const map<string, string> &vars) {
     // 构造一个Event类对象
     Event* event = new DFAEvent();
     event->setEventName(eventName);
@@ -119,7 +124,10 @@ void DFAModule::addEvent(const string &eventName, map<string, string> &vars) {
 
     }
 
-    // 每次添加事件时进行check
+    // 每次添加事件时进行轨迹描绘
+    this->trace(event);
+
+    // 每次添加事件时对spec进行check
     this->check();
 
     this->events.push_back(event);
@@ -135,4 +143,42 @@ expr DFAModule::extractExpr(const string &constraint) {
     // 对字符串约束进行解析，提取出expr返回
     expr exp = this->ctx.int_const("haha");
     return exp;
+}
+
+void DFAModule::trace(Event *event) {
+    // 如果当前有状态，则优先从此状态出发判断
+    if (this->currentStateNum >= 0) {
+        State* currentState = this->states[this->currentStateNum];
+        if (currentState == nullptr) {
+            // TODO
+            cerr << "找不到当前 状态" << this->currentStateNum << endl;
+            return;
+        }
+        // 判断当前状态是否能转移到下一状态
+        int nextState = currentState->getNextState(event, this->slv);
+        if (nextState >= 0) {
+            // TODO
+            cout << "事件" << event->getEventName() << "将当前状态" << this->currentStateNum << "转移到了状态" << nextState << endl;
+            this->currentStateNum = nextState;
+            return;
+        }
+    }
+
+    // 当前无状态或者当前有状态却无法转移到下一状态，则从所有转移中搜索
+    string eventName = event->getEventName();
+    for (auto& tranMap : this->trans) {
+        // 首先要事件名匹配
+        if (tranMap.first == eventName) {
+            // 然后判断该转移的源状态是否能经由该转移和该事件转移到下一状态
+            Tran* currentTran = tranMap.second;
+            bool couldTran = currentTran->checkEvent(event, this->slv);
+            if (couldTran) {
+                cout << "事件" << eventName << "产生了从状态" << currentTran->getSourceStateNum() << "到状态" << currentTran->getDestStateNum() << "的转移" << endl;
+                this->currentStateNum = currentTran->getDestStateNum();
+                break;
+            }
+        }
+    }
+
+    cout << "事件" << eventName << "无法找到合适的转移" << endl;
 }

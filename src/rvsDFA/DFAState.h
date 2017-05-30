@@ -28,6 +28,10 @@ public:
 
     int getStateNum() const override ;
 
+    int getNextState(Event *event, solver &slv) override;
+
+    set<expr> getExps() const override;
+
 private:
     int stateNum;
 

@@ -15,3 +15,7 @@ void DFAEvent::addExpr(expr & exp) {
 const string &DFAEvent::getEventName() const {
     return eventName;
 }
+
+set<expr> DFAEvent::getExps() const {
+    return this->exps;
+}

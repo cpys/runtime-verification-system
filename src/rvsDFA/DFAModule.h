@@ -17,14 +17,14 @@ using namespace z3;
 class DFAModule : public Module {
 
 public:
-    DFAModule() = default;
+    DFAModule();
     ~DFAModule() override;
 
     void addVarDecl(const string &varType, const string &varName) override;
     void addState(int stateNum, const vector<string> &stateConstraints) override ;
     void addTran(const string &tranName, int sourceStateName, int destStateNum, const vector<string> &tranConstraints) override ;
     void addSpec(const string &tempWord, const string &tempConstraint) override ;
-    void addEvent(const string &eventName, map<string, string> &vars) override;
+    void addEvent(const string &eventName, const map<string, string> &vars) override;
     void check() override ;
 
 private:
@@ -36,12 +36,22 @@ private:
 
     context ctx;    // 检查状态转移的z3上下文
 
+    solver slv; // 检查状态转移的z3求解器
+
+    int currentStateNum;    // 模型执行过程中当前状态
+
     /*
      * 对字符串约束进行解析，提取出expr返回
      * @param 字符串表示的约束
      * @return expr
      */
     expr extractExpr(const string& constraint);
+
+    /*
+     * 对添加的事件进行状态转移选择
+     * @param 事件指针
+     */
+    void trace(Event* event);
 };
 
 

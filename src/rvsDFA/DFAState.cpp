@@ -32,3 +32,32 @@ void DFAState::addTran(Tran *tran) {
 int DFAState::getStateNum() const {
     return this->stateNum;
 }
+
+int DFAState::getNextState(Event *event, solver &slv) {
+    // 遍历此状态出发的转移关系，依次判断是否符合
+    for (auto& tran : this->trans) {
+        if (tran->getName() != event->getEventName()) continue;
+
+        slv.reset();
+        // 先添加状态内的expr
+        for (auto& exp : this->exps) {
+            slv.add(exp);
+        }
+        // 再添加转移内的expr
+        for (auto& exp : tran->getExps()) {
+            slv.add(exp);
+        }
+        // 再添加事件内的expr
+        for (auto& exp : event->getExps()) {
+            slv.add(exp);
+        }
+        if (slv.check() == z3::sat) {
+            return tran->getDestStateNum();
+        }
+    }
+    return -1;
+}
+
+set<expr> DFAState::getExps() const {
+    return this->exps;
+}
