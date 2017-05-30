@@ -3,7 +3,7 @@
 //
 
 #include <iostream>
-#include "rvsDFA/DFAModule.h"
+#include <DFAModule.h>
 
 int main() {
     // 建立模型

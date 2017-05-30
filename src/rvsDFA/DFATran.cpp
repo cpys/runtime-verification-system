@@ -2,14 +2,7 @@
 // Created by chenkuan on 17-5-29.
 //
 
-#include "DFATran.h"
-
-DFATran::DFATran() {
-}
-
-DFATran::~DFATran() {
-
-}
+#include "headers/DFATran.h"
 
 void DFATran::setName(const string & tranName) {
     this->tranName = tranName;
@@ -49,7 +42,7 @@ int DFATran::getDestStateNum() const {
     return this->sourceState->getStateNum();
 }
 
-set<expr> DFATran::getExps() const {
+const set<expr> &DFATran::getExps() const {
     return this->exps;
 }
 

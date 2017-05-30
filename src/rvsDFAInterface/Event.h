@@ -7,7 +7,7 @@
 
 #include <string>
 #include <set>
-#include "../../api/c++/z3++.h"
+#include <c++/z3++.h>
 
 using std::string;
 using std::set;
@@ -41,7 +41,7 @@ public:
      * 获取expr集合
      * @return 表达式集合
      */
-    virtual set<expr> getExps() const = 0;
+    virtual const set<expr> &getExps() const = 0;
 
 };
 

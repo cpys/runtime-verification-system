@@ -6,13 +6,15 @@
 #define RUNTIME_VERIFICATION_SYSTEM_STATE_H
 
 #include <set>
-#include "Tran.h"
-#include "Event.h"
-#include "../../api/c++/z3++.h"
+//#include <Tran.h>
+#include <Event.h>
+#include <c++/z3++.h>
 
 using std::set;
 using z3::expr;
 using z3::solver;
+
+class Tran;
 
 class State {
 
@@ -55,7 +57,7 @@ public:
      * 获取状态中的表达式集合
      * @return 表达式集合
      */
-    virtual set<expr> getExps() const = 0;
+    virtual const set<expr> &getExps() const = 0;
 };
 
 

@@ -6,10 +6,10 @@
 #define RUNTIME_VERIFICATION_SYSTEM_SPEC_H
 
 #include <string>
-#include "../../api/c++/z3++.h"
+#include <c++/z3++.h>
 
 using std::string;
-using namespace z3;
+using z3::expr;
 
 class Spec {
 

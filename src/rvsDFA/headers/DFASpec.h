@@ -6,7 +6,7 @@
 #define RUNTIME_VERIFICATION_SYSTEM_DFASPEC_H
 
 #include <set>
-#include "../rvsDFAInterface/Spec.h"
+#include <Spec.h>
 
 using std::set;
 

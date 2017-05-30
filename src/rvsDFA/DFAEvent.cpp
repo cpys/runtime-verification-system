@@ -2,7 +2,7 @@
 // Created by chenkuan on 17-5-29.
 //
 
-#include "DFAEvent.h"
+#include <DFAEvent.h>
 
 void DFAEvent::setEventName(const string & eventName) {
     this->eventName = eventName;
@@ -16,6 +16,6 @@ const string &DFAEvent::getEventName() const {
     return eventName;
 }
 
-set<expr> DFAEvent::getExps() const {
+const set<expr> &DFAEvent::getExps() const {
     return this->exps;
 }

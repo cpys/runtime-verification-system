@@ -3,7 +3,7 @@ project(runtime-verification-system)
 
 include_directories(${PROJECT_SOURCE_DIR}/api)
 include_directories(${PROJECT_SOURCE_DIR}/src/rvsDFAInterface)
-include_directories(${PROJECT_SOURCE_DIR}/src/rvsDFA)
+include_directories(${PROJECT_SOURCE_DIR}/src/rvsDFA/headers)
 
 link_directories(${PROJECT_SOURCE_DIR}/lib)
 

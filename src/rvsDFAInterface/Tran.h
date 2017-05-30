@@ -7,8 +7,9 @@
 
 #include <string>
 #include <set>
-#include "State.h"
-#include "../../api/c++/z3++.h"
+#include <State.h>
+#include <Event.h>
+#include <c++/z3++.h>
 
 using std::string;
 using std::set;
@@ -79,7 +80,7 @@ public:
      * 获取表达式集合
      * @return 表达式集合
      */
-    virtual set<expr> getExps() const = 0;
+    virtual const set<expr> &getExps() const = 0;
 
     /*
      * 检查对给定事件该转移是否符合

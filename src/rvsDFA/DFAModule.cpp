@@ -3,17 +3,17 @@
 //
 
 #include <iostream>
-#include "DFAModule.h"
-#include "DFAState.h"
-#include "DFATran.h"
-#include "DFASpec.h"
-#include "DFAEvent.h"
+#include <DFAModule.h>
+#include <DFAState.h>
+#include <DFATran.h>
+#include <DFASpec.h>
+#include <DFAEvent.h>
 
 using std::cout;
 using std::endl;
 using std::cerr;
 
-DFAModule::DFAModule() {
+DFAModule::DFAModule() : slv(ctx) {
     this->currentStateNum = -1;
 }
 
@@ -30,6 +30,19 @@ DFAModule::~DFAModule() {
             tran.second = nullptr;
         }
     }
+    for (auto& spec : this->specs) {
+        if (spec != nullptr) {
+            delete(spec);
+            spec = nullptr;
+        }
+    }
+    for (auto& event : this->events) {
+        if (event != nullptr) {
+            delete(event);
+            event = nullptr;
+        }
+    }
+    slv.reset();
 }
 
 void DFAModule::addVarDecl(const string &varType, const string &varName) {
@@ -58,18 +71,24 @@ void DFAModule::addState(int stateNum, const vector<string> &stateConstraints) {
 void DFAModule::addTran(const string &tranName, int sourceStateNum, int destStateNum,
                         const vector<string> &tranConstraints) {
     // 取出源状态编号对应的状态
-    State* state = this->states[sourceStateNum];
-    if (state == nullptr) {
+    State* sourceState = this->states[sourceStateNum];
+    if (sourceState == nullptr) {
         // TODO
-        cout << "不存在源状态" << sourceStateNum << endl;
+        cerr << "不存在源状态" << sourceStateNum << endl;
         return;
+    }
+
+    State* destState = this->states[destStateNum];
+    if (destState == nullptr) {
+        // TODO
+        cerr << "不存在目标状态" << destStateNum << endl;
     }
 
     // 构造一个转移类对象
     Tran* tran = new DFATran();
     tran->setName(tranName);
-    tran->setSourceStateNum(sourceStateNum);
-    tran->setDestStateNum(destStateNum);
+    tran->setSourceState(sourceState);
+    tran->setDestState(destState);
     // 将转移约束字符串解析成expr,添加到转移中expr集合中
     for (auto& tranConstraint : tranConstraints) {
         expr exp = this->extractExpr(tranConstraint);
@@ -77,7 +96,7 @@ void DFAModule::addTran(const string &tranName, int sourceStateNum, int destStat
     }
 
     // 将构造完的转移类添加到源state和module中
-    state->addTran(tran);
+    sourceState->addTran(tran);
     this->trans[tranName] = tran;
 }
 
@@ -102,7 +121,7 @@ void DFAModule::addEvent(const string &eventName, const map<string, string> &var
         string varType = varsDecl[var.first];
         if (varType == "") {
             // TODO
-            cout << "没有变量" << var.first << endl;
+            cerr << "没有变量" << var.first << endl;
             return;
         }
         // 根据变量类型将变量值转换成expr添加到Event类对象中
@@ -118,7 +137,7 @@ void DFAModule::addEvent(const string &eventName, const map<string, string> &var
         }
         else {
             // TODO
-            cout << "变量类型" << varType << "不支持" << endl;
+            cerr << "变量类型" << varType << "不支持" << endl;
             continue;
         }
 
@@ -141,7 +160,7 @@ void DFAModule::check() {
 expr DFAModule::extractExpr(const string &constraint) {
     // TODO
     // 对字符串约束进行解析，提取出expr返回
-    expr exp = this->ctx.int_const("haha");
+    expr exp;
     return exp;
 }
 

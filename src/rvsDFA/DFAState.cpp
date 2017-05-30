@@ -2,19 +2,10 @@
 // Created by chenkuan on 17-5-29.
 //
 
-#include "DFAState.h"
+#include <DFAState.h>
 
 DFAState::DFAState() {
     this->stateNum = -1;
-}
-
-DFAState::~DFAState() {
-    for (auto& tran : this->trans) {
-        if (tran != nullptr) {
-            delete(tran);
-            tran = nullptr;
-        }
-    }
 }
 
 void DFAState::setStateNum(int stateNum) {
@@ -58,6 +49,6 @@ int DFAState::getNextState(Event *event, solver &slv) {
     return -1;
 }
 
-set<expr> DFAState::getExps() const {
+const set<expr> &DFAState::getExps() const {
     return this->exps;
 }

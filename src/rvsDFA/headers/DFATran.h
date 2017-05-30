@@ -5,13 +5,11 @@
 #ifndef RUNTIME_VERIFICATION_SYSTEM_DFATRAN_H
 #define RUNTIME_VERIFICATION_SYSTEM_DFATRAN_H
 
-#include <Event.h>
-#include <State.h>
-#include "../rvsDFAInterface/Tran.h"
+#include <Tran.h>
 
 class DFATran : public Tran{
 public:
-    DFATran();
+    DFATran() = default;
     ~DFATran() override = default;
 
     void setName(const string &tranName) override ;
@@ -25,7 +23,7 @@ public:
     int getSourceStateNum() const override;
     int getDestStateNum() const override;
 
-    set<expr> getExps() const override;
+    const set<expr> &getExps() const override;
 
     bool checkEvent(Event *event, solver &slv) override;
 

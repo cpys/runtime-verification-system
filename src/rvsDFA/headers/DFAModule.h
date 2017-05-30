@@ -5,12 +5,12 @@
 #ifndef RUNTIME_VERIFICATION_SYSTEM_DFAMODULE_H
 #define RUNTIME_VERIFICATION_SYSTEM_DFAMODULE_H
 
-#include "../rvsDFAInterface/Module.h"
-#include "../rvsDFAInterface/State.h"
-#include "../rvsDFAInterface/Tran.h"
-#include "../rvsDFAInterface/Spec.h"
-#include "../rvsDFAInterface/Event.h"
-#include "../../api/c++/z3++.h"
+#include <Module.h>
+#include <State.h>
+#include <Tran.h>
+#include <Spec.h>
+#include <Event.h>
+#include <c++/z3++.h>
 
 using namespace z3;
 

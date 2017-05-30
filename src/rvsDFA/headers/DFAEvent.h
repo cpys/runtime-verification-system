@@ -5,7 +5,7 @@
 #ifndef RUNTIME_VERIFICATION_SYSTEM_DFAEVENT_H
 #define RUNTIME_VERIFICATION_SYSTEM_DFAEVENT_H
 
-#include "../rvsDFAInterface/Event.h"
+#include <Event.h>
 
 class DFAEvent : public Event {
 
@@ -17,8 +17,7 @@ public:
     void addExpr(expr &exp) override ;
 
     const string &getEventName() const override ;
-
-    set<expr> getExps() const override;
+    const set<expr> &getExps() const override;
 
 private:
     string eventName;

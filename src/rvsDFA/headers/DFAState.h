@@ -5,22 +5,17 @@
 #ifndef RUNTIME_VERIFICATION_SYSTEM_DFASTATE_H
 #define RUNTIME_VERIFICATION_SYSTEM_DFASTATE_H
 
-
-#include <string>
-#include <set>
+#include <State.h>
+#include <Tran.h>
 #include <vector>
 
-#include "../rvsDFAInterface/State.h"
-
-using std::string;
-using std::set;
 using std::vector;
 
 class DFAState : public State{
 
 public:
     DFAState();
-    ~DFAState() override;
+    ~DFAState() override = default;
 
     void setStateNum(int stateNum) override;
     void addExpr(expr &exp) override;
@@ -30,7 +25,7 @@ public:
 
     int getNextState(Event *event, solver &slv) override;
 
-    set<expr> getExps() const override;
+    const set<expr> &getExps() const override;
 
 private:
     int stateNum;
