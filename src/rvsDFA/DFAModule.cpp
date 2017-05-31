@@ -156,6 +156,10 @@ void DFAModule::addEvent(const string &eventName, const map<string, string> &var
 void DFAModule::check() {
     // TODO
     // 每次添加新事件时调用check
+//    cout << __FILE__ << endl;
+//    cout << __LINE__ << endl;
+//    cout << __FUNCTION__ << endl;
+//    cout << __func__ << endl;
 }
 
 expr DFAModule::extractExpr(const string &constraint) {
