@@ -3,6 +3,7 @@
 //
 
 #include <iostream>
+#include <regex>
 #include <DFAModule.h>
 #include <DFAState.h>
 #include <DFATran.h>
@@ -160,8 +161,51 @@ void DFAModule::check() {
 expr DFAModule::extractExpr(const string &constraint) {
     // TODO
     // 对字符串约束进行解析，提取出expr返回
-    expr exp;
-    return exp;
+    // 暂时要求条件表达式满足如下形式
+    // 变量名 关系运算符 变量值
+    std::regex re("[[:space:]]*([a-zA-Z_][a-zA-Z0-9_]*)[[:space:]]*(==|!=|<|<=|>|>=)[[:space:]]*([[:digit:]]+|[[:digit:]]*.[[:digit:]]+)[[:space:]]*");
+    std::smatch sm; // 存储匹配结果
+    regex_match(constraint, sm, re);
+    if (sm.size() != 4) {
+        // TODO
+        cerr << "表达式暂不支持" << endl;
+        return this->ctx.int_const("wrong");
+    }
+
+    // 先根据表达式中的变量获取其类型，然后生成对应的初始化表达式
+    string varName = sm[1];
+    string oper = sm[2];
+    string valueStr = sm[3];
+
+    string varType = this->varsDecl[varName];
+    if (varType == "int") {
+        expr exp = this->ctx.int_const(varName.c_str());
+        int value = stoi(valueStr);
+        if (oper == "==") return exp == value;
+        if (oper == "!=") return exp != value;
+        if (oper == "<") return exp < value;
+        if (oper == "<=") return exp <= value;
+        if (oper == ">") return exp > value;
+        if (oper == ">=") return exp >= value;
+
+        // TODO
+        cerr << "不支持的运算符" << oper << endl;
+    }
+    else if (varType == "real") {
+        expr exp = this->ctx.real_const(varName.c_str());
+        double value = stod(valueStr);
+        if (oper == "==") return exp == value;
+        if (oper == "!=") return exp != value;
+        if (oper == "<") return exp < value;
+        if (oper == "<=") return exp <= value;
+        if (oper == ">") return exp > value;
+        if (oper == ">=") return exp >= value;
+
+        // TODO
+        cerr << "不支持的运算符" << oper << endl;
+    }
+
+    return this->ctx.int_const("wrong");
 }
 
 void DFAModule::trace(Event *event) {
@@ -194,7 +238,7 @@ void DFAModule::trace(Event *event) {
             if (couldTran) {
                 cout << "事件" << eventName << "产生了从状态" << currentTran->getSourceStateNum() << "到状态" << currentTran->getDestStateNum() << "的转移" << endl;
                 this->currentStateNum = currentTran->getDestStateNum();
-                break;
+                return;
             }
         }
     }

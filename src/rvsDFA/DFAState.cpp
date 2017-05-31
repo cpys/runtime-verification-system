@@ -13,7 +13,7 @@ void DFAState::setStateNum(int stateNum) {
 }
 
 void DFAState::addExpr(expr &exp) {
-    this->exps.insert(exp);
+    this->exps.push_back(exp);
 }
 
 void DFAState::addTran(Tran *tran) {
@@ -49,6 +49,6 @@ int DFAState::getNextState(Event *event, solver &slv) {
     return -1;
 }
 
-const set<expr> &DFAState::getExps() const {
+const vector<expr> &DFAState::getExps() const {
     return this->exps;
 }

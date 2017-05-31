@@ -23,7 +23,7 @@ public:
     int getSourceStateNum() const override;
     int getDestStateNum() const override;
 
-    const set<expr> &getExps() const override;
+    const vector<expr> &getExps() const override;
 
     bool checkEvent(Event *event, solver &slv) override;
 
@@ -32,7 +32,7 @@ private:
     State* sourceState;
     State* destState;
 
-    set<expr> exps; // 表达式集合
+    vector<expr> exps; // 表达式集合
 };
 
 

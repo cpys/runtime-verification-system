@@ -9,5 +9,9 @@ void DFASpec::addTempWord(const string & tempWord) {
 }
 
 void DFASpec::addExpr(expr & exp) {
-    this->exps.insert(exp);
+    this->exps.push_back(exp);
+}
+
+const vector<expr> &DFASpec::getExps() const {
+    return this->exps;
 }

@@ -9,13 +9,13 @@ void DFAEvent::setEventName(const string & eventName) {
 }
 
 void DFAEvent::addExpr(expr & exp) {
-    this->exps.insert(exp);
+    this->exps.push_back(exp);
 }
 
 const string &DFAEvent::getEventName() const {
     return eventName;
 }
 
-const set<expr> &DFAEvent::getExps() const {
+const vector<expr> &DFAEvent::getExps() const {
     return this->exps;
 }

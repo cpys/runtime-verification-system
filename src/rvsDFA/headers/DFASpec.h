@@ -5,10 +5,7 @@
 #ifndef RUNTIME_VERIFICATION_SYSTEM_DFASPEC_H
 #define RUNTIME_VERIFICATION_SYSTEM_DFASPEC_H
 
-#include <set>
 #include <Spec.h>
-
-using std::set;
 
 class DFASpec : public Spec {
 
@@ -19,9 +16,11 @@ public:
     void addTempWord(const string &tempWord) override;
     void addExpr(expr &exp) override;
 
+    const vector<expr> &getExps() const override ;
+
 private:
     string tempWord;
-    set<expr> exps;
+    vector<expr> exps;
 };
 
 

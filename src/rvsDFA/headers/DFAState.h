@@ -7,9 +7,6 @@
 
 #include <State.h>
 #include <Tran.h>
-#include <vector>
-
-using std::vector;
 
 class DFAState : public State{
 
@@ -25,12 +22,12 @@ public:
 
     int getNextState(Event *event, solver &slv) override;
 
-    const set<expr> &getExps() const override;
+    const vector<expr> &getExps() const override;
 
 private:
     int stateNum;
 
-    set<expr> exps; // 表达式集合
+    vector<expr> exps; // 表达式集合
     vector <Tran*> trans;   // 转移数组
 };
 

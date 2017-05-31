@@ -17,7 +17,7 @@ void DFATran::setDestState(State *state) {
 }
 
 void DFATran::addExpr(expr & exp) {
-    this->exps.insert(exp);
+    this->exps.push_back(exp);
 }
 
 const string DFATran::getName() const {
@@ -39,10 +39,10 @@ int DFATran::getSourceStateNum() const {
 
 int DFATran::getDestStateNum() const {
     if (this->destState == nullptr) return -1;
-    return this->sourceState->getStateNum();
+    return this->destState->getStateNum();
 }
 
-const set<expr> &DFATran::getExps() const {
+const vector<expr> &DFATran::getExps() const {
     return this->exps;
 }
 

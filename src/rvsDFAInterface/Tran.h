@@ -6,13 +6,13 @@
 #define RUNTIME_VERIFICATION_SYSTEM_TRAN_H
 
 #include <string>
-#include <set>
+#include <vector>
 #include <State.h>
 #include <Event.h>
 #include <c++/z3++.h>
 
 using std::string;
-using std::set;
+using std::vector;
 using z3::expr;
 using z3::solver;
 
@@ -80,7 +80,7 @@ public:
      * 获取表达式集合
      * @return 表达式集合
      */
-    virtual const set<expr> &getExps() const = 0;
+    virtual const vector<expr> &getExps() const = 0;
 
     /*
      * 检查对给定事件该转移是否符合

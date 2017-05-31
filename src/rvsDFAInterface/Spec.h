@@ -6,9 +6,11 @@
 #define RUNTIME_VERIFICATION_SYSTEM_SPEC_H
 
 #include <string>
+#include <vector>
 #include <c++/z3++.h>
 
 using std::string;
+using std::vector;
 using z3::expr;
 
 class Spec {
@@ -29,6 +31,11 @@ public:
      */
     virtual void addExpr(expr&) = 0;
 
+    /*
+     * 获取表达式列表
+     * @return 表达式列表
+     */
+    virtual const vector<expr> &getExps() const = 0;
 };
 
 

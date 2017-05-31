@@ -5,12 +5,11 @@
 #ifndef RUNTIME_VERIFICATION_SYSTEM_STATE_H
 #define RUNTIME_VERIFICATION_SYSTEM_STATE_H
 
-#include <set>
-//#include <Tran.h>
+#include <vector>
 #include <Event.h>
 #include <c++/z3++.h>
 
-using std::set;
+using std::vector;
 using z3::expr;
 using z3::solver;
 
@@ -57,7 +56,7 @@ public:
      * 获取状态中的表达式集合
      * @return 表达式集合
      */
-    virtual const set<expr> &getExps() const = 0;
+    virtual const vector<expr> &getExps() const = 0;
 };
 
 

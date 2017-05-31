@@ -17,11 +17,11 @@ public:
     void addExpr(expr &exp) override ;
 
     const string &getEventName() const override ;
-    const set<expr> &getExps() const override;
+    const vector<expr> &getExps() const override;
 
 private:
     string eventName;
-    set<expr> exps;
+    vector<expr> exps;
 };
 
 
