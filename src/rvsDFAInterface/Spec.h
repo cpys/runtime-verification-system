@@ -26,6 +26,12 @@ public:
     virtual void addTempWord(const string&) = 0;
 
     /*
+     * 添加字符串约束
+     * @param 字符串约束
+     */
+    virtual void addConstraint(const string&) = 0;
+
+    /*
      * 添加expr
      * @param expr
      */
@@ -36,6 +42,24 @@ public:
      * @return 表达式列表
      */
     virtual const vector<expr> &getExps() const = 0;
+
+    /*
+     * 获取时序词
+     * @return 时序词
+     */
+    virtual const string &getTempWord() const = 0;
+
+    /*
+     * 获取字符串约束
+     * @return 字符串约束
+     */
+    virtual const vector<string> &getConstraints() const = 0;
+
+    /*
+     * 获取格式化输出
+     * @return 格式化输出
+     */
+    virtual const string toString() const = 0;
 };
 
 

@@ -23,7 +23,7 @@ public:
     void addVarDecl(const string &varType, const string &varName) override;
     void addState(int stateNum, const vector<string> &stateConstraints) override ;
     void addTran(const string &tranName, int sourceStateName, int destStateNum, const vector<string> &tranConstraints) override ;
-    void addSpec(const string &tempWord, const string &tempConstraint) override ;
+    void addSpec(const string &tempWord, const vector<string> &tempConstraints) override ;
     void addEvent(const string &eventName, const map<string, string> &vars) override;
     void check() override ;
 
@@ -35,10 +35,12 @@ private:
     vector<Event*> events;  // 所有事件的声明
 
     context ctx;    // 检查状态转移的z3上下文
-
     solver slv; // 检查状态转移的z3求解器
 
-    int currentStateNum;    // 模型执行过程中当前状态
+    map<Spec*, bool> specValidity;  // 所有判定逻辑的正确性
+
+    int currentStateNum;    // 模型执行过程中当前状态编号
+    vector <int> stateNums; // 事件加入过程中产生的新状态编号，可能为0,1,2个
 
     /*
      * 对字符串约束进行解析，提取出expr返回
@@ -50,6 +52,7 @@ private:
     /*
      * 对添加的事件进行状态转移选择
      * @param 事件指针
+     * @return 新加入的状态编号
      */
     void trace(Event* event);
 };

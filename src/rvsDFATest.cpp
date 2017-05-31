@@ -30,7 +30,7 @@ int main() {
     module->addTran("event5", 6, 4, vector<string>{"x > 9"});
     module->addTran("event6", 4, 5, vector<string>{"y > 17", "x > 23"});
 
-    module->addSpec("G", "x > 5");
+    module->addSpec("A", {"x > 5"});
 
     // 模型建立完成后，开始添加事件
     module->addEvent("event1", {{"x", "6"}});

@@ -13,13 +13,19 @@ public:
     DFASpec() = default;
     ~DFASpec() override = default;
 
-    void addTempWord(const string &tempWord) override;
+    void addTempWord(const string &tempWord) override ;
+    void addConstraint(const string &constraint) override ;
     void addExpr(expr &exp) override;
 
     const vector<expr> &getExps() const override ;
+    const string &getTempWord() const override ;
+    const vector<string> &getConstraints() const override ;
+
+    const string toString() const override ;
 
 private:
     string tempWord;
+    vector<string> constraints;
     vector<expr> exps;
 };
 

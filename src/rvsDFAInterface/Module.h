@@ -42,7 +42,7 @@ public:
      * 添加一个判定逻辑
      * @param 时序词 判定逻辑
      */
-    virtual void addSpec(const string&, const string&) = 0;
+    virtual void addSpec(const string&, const vector<string>&) = 0;
 
     /*
      * 添加一个事件

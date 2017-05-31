@@ -101,16 +101,30 @@ void DFAModule::addTran(const string &tranName, int sourceStateNum, int destStat
     this->trans[tranName] = tran;
 }
 
-void DFAModule::addSpec(const string &tempWord, const string &tempConstraint) {
+void DFAModule::addSpec(const string &tempWord, const vector<string> &tempConstraints) {
     // 构造一个Spec类对象
     Spec* spec = new DFASpec();
     spec->addTempWord(tempWord);
     // 将判定逻辑的约束字符串解析成expr,添加到Spec对象的expr集合中
-    expr exp = this->extractExpr(tempConstraint);
-    spec->addExpr(exp);
+    for (auto& constraint : tempConstraints) {
+        spec->addConstraint(constraint);
+        expr exp = this->extractExpr(constraint);
+        spec->addExpr(exp);
+    }
 
     // 将Spec类对象添加到module中
     this->specs.push_back(spec);
+    // 根据Spec时序词的不同，给其正确性赋相应初值
+    if (tempWord == "G") {
+        this->specValidity[spec] = true;
+    }
+    else if (tempWord == "A") {
+        this->specValidity[spec] = false;
+    }
+    else {
+        // TODO
+        cerr << "不合法的时序词" << tempWord << endl;
+    }
 }
 
 void DFAModule::addEvent(const string &eventName, const map<string, string> &vars) {
@@ -156,10 +170,36 @@ void DFAModule::addEvent(const string &eventName, const map<string, string> &var
 void DFAModule::check() {
     // TODO
     // 每次添加新事件时调用check
-//    cout << __FILE__ << endl;
-//    cout << __LINE__ << endl;
-//    cout << __FUNCTION__ << endl;
-//    cout << __func__ << endl;
+    for (auto& spec : this->specs) {
+        // 跳过已成功验证过的逻辑
+        if (spec->getTempWord() == "A" && this->specValidity[spec] == true) continue;
+        if (spec->getTempWord() == "G" && this->specValidity[spec] == false) continue;
+
+        this->slv.reset();
+        // 先添加spec的表达式
+        for (auto& exp : spec->getExps()) {
+            this->slv.add(exp);
+        }
+        // 再添加状态中的表达式
+        for (auto& stateNum : this->stateNums) {
+            for (auto& exp : this->states[stateNum]->getExps()) {
+                this->slv.add(exp);
+            }
+        }
+
+        z3::check_result  result = slv.check();
+        if (result == z3::sat && spec->getTempWord() == "A") {
+            // TODO
+            cout << "验证逻辑" << spec->toString() << "通过验证" << endl;
+            this->specValidity[spec] = true;
+        }
+        if (result == z3::unsat && spec->getTempWord() == "G") {
+            // TODO
+            cout << "验证逻辑" << spec->toString() << "验证失败" << endl;
+            this->specValidity[spec] = false;
+        }
+    }
+
 }
 
 expr DFAModule::extractExpr(const string &constraint) {
@@ -213,6 +253,7 @@ expr DFAModule::extractExpr(const string &constraint) {
 }
 
 void DFAModule::trace(Event *event) {
+    this->stateNums = {};
     // 如果当前有状态，则优先从此状态出发判断
     if (this->currentStateNum >= 0) {
         State* currentState = this->states[this->currentStateNum];
@@ -227,7 +268,8 @@ void DFAModule::trace(Event *event) {
             // TODO
             cout << "事件" << event->getEventName() << "将当前状态" << this->currentStateNum << "转移到了状态" << nextState << endl;
             this->currentStateNum = nextState;
-            return;
+            this->stateNums = {this->currentStateNum, nextState};
+            return ;
         }
     }
 
@@ -242,6 +284,7 @@ void DFAModule::trace(Event *event) {
             if (couldTran) {
                 cout << "事件" << eventName << "产生了从状态" << currentTran->getSourceStateNum() << "到状态" << currentTran->getDestStateNum() << "的转移" << endl;
                 this->currentStateNum = currentTran->getDestStateNum();
+                this->stateNums = {currentTran->getSourceStateNum(), currentTran->getDestStateNum()};
                 return;
             }
         }
