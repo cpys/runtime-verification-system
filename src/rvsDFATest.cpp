@@ -16,19 +16,19 @@ int main() {
     module->addVarDecl("int", "x");
     module->addVarDecl("int", "y");
 
-    module->addState(1, vector<string>{"x > 3", "y > 0"});
-    module->addState(2, vector<string>{"x > 5", "y > 2"});
-    module->addState(3, vector<string>{"x > 7", "y > 5"});
-    module->addState(4, vector<string>{"x > 9", "y > 10"});
-    module->addState(5, vector<string>{"x > 23", "y > 17"});
-    module->addState(6, vector<string>{"x > 6", "y > 5"});
+    module->addState(1, {"x > 3", "y > 0"});
+    module->addState(2, {"x > 5", "y > 2"});
+    module->addState(3, {"x > 7", "y > 5"});
+    module->addState(4, {"x > 9", "y > 10"});
+    module->addState(5, {"x > 23", "y > 17"});
+    module->addState(6, {"x > 6", "y > 5"});
 
-    module->addTran("event1", 1, 2, vector<string>{"y > 2"});
-    module->addTran("event2", 2, 3, vector<string>{"y > 5"});
-    module->addTran("event3", 3, 4, vector<string>{"x > 9"});
-    module->addTran("event4", 2, 6, vector<string>{"y > 5"});
-    module->addTran("event5", 6, 4, vector<string>{"x > 9"});
-    module->addTran("event6", 4, 5, vector<string>{"y > 17", "x > 23"});
+    module->addTran("event1", 1, 2, {"y > 2"});
+    module->addTran("event2", 2, 3, {"y > 5"});
+    module->addTran("event3", 3, 4, {"x > 9"});
+    module->addTran("event4", 2, 6, {"y > 5"});
+    module->addTran("event5", 6, 4, {"x > 9"});
+    module->addTran("event6", 4, 5, {"y > 17", "x > 23"});
 
     module->addSpec("A", {"x > 5"});
 

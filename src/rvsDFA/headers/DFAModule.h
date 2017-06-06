@@ -55,6 +55,41 @@ private:
      * @return 新加入的状态编号
      */
     void trace(Event* event);
+
+    /*
+     * 给定字符判断其是否属于运算符中可能出现的字符
+     * @param 字符
+     * @return 是否可能在运算符中出现
+     */
+    bool isOperator(const char& c);
+
+    /*
+     * 根据变量名称查找变量类型并生成z3表达式
+     * @param 变量名
+     * @return expr
+     */
+    expr generateVarExp(const string& varName);
+
+    /*
+     * 根据字符串表示的数字生成数字表达式
+     * @param 数字字符串
+     * @return expr
+     */
+    expr generateNumExp(const string& operand);
+
+    /*
+     * 比较两运算符优先级
+     * @param 运算符1 运算符2
+     * @return 如果运算符1优先级比运算符2优先级高，返回true，否则返回false
+     */
+    bool compareOperator(const string& operator1, const string& operator2);
+
+    /*
+     * 根据两表达式和一个运算符生成新的表达式
+     * @param 表达式1 运算符 表达式2
+     * @return 运算后的表达式
+     */
+    expr calcExpr(expr& expr1, const string& currentOperator, expr& expr2);
 };
 
 

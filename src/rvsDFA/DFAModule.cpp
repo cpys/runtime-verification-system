@@ -4,6 +4,8 @@
 
 #include <iostream>
 #include <regex>
+#include <stack>
+#include <cctype>
 #include <DFAModule.h>
 #include <DFAState.h>
 #include <DFATran.h>
@@ -13,6 +15,7 @@
 using std::cout;
 using std::endl;
 using std::cerr;
+using std::stack;
 
 DFAModule::DFAModule() : slv(ctx) {
     this->currentStateNum = -1;
@@ -203,54 +206,205 @@ void DFAModule::check() {
 }
 
 expr DFAModule::extractExpr(const string &constraint) {
-    // TODO
-    // 对字符串约束进行解析，提取出expr返回
-    // 暂时要求条件表达式满足如下形式
-    // 变量名 关系运算符 变量值
-    std::regex re("[[:space:]]*([a-zA-Z_][a-zA-Z0-9_]*)[[:space:]]*(==|!=|<|<=|>|>=)[[:space:]]*([[:digit:]]+|[[:digit:]]*.[[:digit:]]+)[[:space:]]*");
-    std::smatch sm; // 存储匹配结果
-    regex_match(constraint, sm, re);
-    if (sm.size() != 4) {
-        // TODO
-        cerr << "表达式暂不支持" << endl;
-        return this->ctx.int_const("wrong");
+    // 借用运算符栈和运算数栈实现表达式的解析
+    stack<string> operatorStack;
+    // expr栈用来记录中间表达式结果
+    stack<expr> exprStack;
+
+    // 暂存已出现过的变量名对应的expr
+    map<string, expr> varExpr;
+
+    // 先压入最低优先级运算符
+    operatorStack.push("$");
+
+    // 遍历字符串表达式
+    string identifier;    // 记录标识符
+    string flag;    // 记录当前类型
+    for (auto& c : constraint) {
+        if (flag == "") {
+            // 当前无类型，即可从任意符号开始新的标识符
+            if (isalpha(c) != 0 || c == '_') {
+                // 当前开始一个新的变量
+                flag = "var";
+                identifier.push_back(c);
+            }
+            else if (isdigit(c) != 0 || c == '.') {
+                // 当前开始一个新的运算数
+                flag = "operand";
+                identifier.push_back(c);
+            }
+            else if (isOperator(c)) {
+                // 当前为运算符
+                flag = "operator";
+                identifier.push_back(c);
+            }
+            else if (isspace(c) == 0) {
+                // 其他情况必须为空格
+                cerr << "非法字符" << c << endl;
+            }
+        }
+        else if (flag == "var") {
+            // 当前已处于变量状态
+            if (isalnum(c) != 0 || c == '_') {
+                // 继续当前变量
+                identifier.push_back(c);
+            }
+            else  {
+                // 当前为其他字符则生成完整变量
+                if (varExpr.find(identifier) != varExpr.end()) {
+                    expr exp = varExpr[identifier];
+                    exprStack.push(exp);
+                }
+                else {
+                    // 根据变量名生成变量名expr
+                    expr exp = generateVarExp(identifier);
+                    exprStack.push(exp);
+                    varExpr[identifier] = exp;
+                }
+                identifier.clear();
+
+                if (isspace(c) != 0) {
+                    flag = "";
+                }
+                else if (isOperator(c)){
+                    flag = "operator";
+                    identifier.push_back(c);
+                }
+                else {
+                    cerr << "不合法的标识符" << identifier + c << endl;
+                }
+            }
+        }
+        else if (flag == "operand") {
+            // 当前已处于运算数状态
+            if (isdigit(c) != 0 || c == '.') {
+                // 继续当前运算数
+                identifier.push_back(c);
+            }
+            else {
+                // 当前为其他字符则生成完整运算数
+                // 分析数的类型得到不同的expr
+                expr exp = generateNumExp(identifier);
+                exprStack.push(exp);
+                identifier.clear();
+
+                if (isspace(c) != 0) {
+                    flag = "";
+                }
+                else if (isOperator(c)) {
+                    flag = "operator";
+                    identifier.push_back(c);
+                }
+                else {
+                    cerr << "非法的标识符" << identifier + c << endl;
+                }
+            }
+        }
+        else if (flag == "operator") {
+            // 当前已经处于运算符状态
+            if (isOperator(c)) {
+                // 继续当前运算符
+                identifier.push_back(c);
+            }
+            else {
+                // 当前为其他字符则生成完整运算符
+                // 将当前运算符与栈顶相比较
+                while (!compareOperator(identifier, operatorStack.top())) {
+                    // 只要当前运算符比栈顶运算符优先级低就一直退两个表达式和一个运算符进行运算后压栈
+                    const string& operatorTop = operatorStack.top();
+                    operatorStack.pop();
+
+                    expr expr2 = exprStack.top();
+                    exprStack.pop();
+                    expr expr1 = exprStack.top();
+                    exprStack.pop();
+
+                    exprStack.push(calcExpr(expr1, operatorTop, expr2));
+                }
+                // 退出循环时表示当前运算符比栈顶运算符优先级高
+                operatorStack.push(identifier);
+                identifier.clear();
+
+                if (isalpha(c) != 0 || c == '_') {
+                    flag = "var";
+                    identifier.push_back(c);
+                }
+                else if (isdigit(c) != 0 || c == '.') {
+                    flag = "operand";
+                    identifier.push_back(c);
+                }
+                else if (isspace(c) == 0) {
+                    cerr << "非法字符" << c << endl;
+                }
+            }
+        }
     }
 
-    // 先根据表达式中的变量获取其类型，然后生成对应的初始化表达式
-    string varName = sm[1];
-    string oper = sm[2];
-    string valueStr = sm[3];
+    // 循环结束后需要手动添加结束符, 即循环退栈
+    while (operatorStack.size() > 1) {
+        const string& operatorTop = operatorStack.top();
+        operatorStack.pop();
 
-    string varType = this->varsDecl[varName];
-    if (varType == "int") {
-        expr exp = this->ctx.int_const(varName.c_str());
-        int value = stoi(valueStr);
-        if (oper == "==") return exp == value;
-        if (oper == "!=") return exp != value;
-        if (oper == "<") return exp < value;
-        if (oper == "<=") return exp <= value;
-        if (oper == ">") return exp > value;
-        if (oper == ">=") return exp >= value;
+        expr expr2 = exprStack.top();
+        exprStack.pop();
+        expr expr1 = exprStack.top();
+        exprStack.pop();
 
-        // TODO
-        cerr << "不支持的运算符" << oper << endl;
-    }
-    else if (varType == "real") {
-        expr exp = this->ctx.real_const(varName.c_str());
-        double value = stod(valueStr);
-        if (oper == "==") return exp == value;
-        if (oper == "!=") return exp != value;
-        if (oper == "<") return exp < value;
-        if (oper == "<=") return exp <= value;
-        if (oper == ">") return exp > value;
-        if (oper == ">=") return exp >= value;
-
-        // TODO
-        cerr << "不支持的运算符" << oper << endl;
+        exprStack.push(calcExpr(expr1, operatorTop, expr2));
     }
 
-    return this->ctx.int_const("wrong");
+    return exprStack.top();
 }
+
+//expr DFAModule::extractExpr(const string &constraint) {
+//    // TODO
+//    // 对字符串约束进行解析，提取出expr返回
+//    // 暂时要求条件表达式满足如下形式
+//    // 变量名 关系运算符 变量值
+//    std::regex re("[[:space:]]*([a-zA-Z_][a-zA-Z0-9_]*)[[:space:]]*(==|!=|<|<=|>|>=)[[:space:]]*([[:digit:]]+|[[:digit:]]*.[[:digit:]]+)[[:space:]]*");
+//    std::smatch sm; // 存储匹配结果
+//    regex_match(constraint, sm, re);
+//    if (sm.size() != 4) {
+//        // TODO
+//        cerr << "表达式暂不支持" << endl;
+//        return this->ctx.int_const("wrong");
+//    }
+//
+//    // 先根据表达式中的变量获取其类型，然后生成对应的初始化表达式
+//    string varName = sm[1];
+//    string oper = sm[2];
+//    string valueStr = sm[3];
+//
+//    string varType = this->varsDecl[varName];
+//    if (varType == "int") {
+//        expr exp = this->ctx.int_const(varName.c_str());
+//        int value = stoi(valueStr);
+//        if (oper == "==") return exp == value;
+//        if (oper == "!=") return exp != value;
+//        if (oper == "<") return exp < value;
+//        if (oper == "<=") return exp <= value;
+//        if (oper == ">") return exp > value;
+//        if (oper == ">=") return exp >= value;
+//
+//        // TODO
+//        cerr << "不支持的运算符" << oper << endl;
+//    }
+//    else if (varType == "real") {
+//        expr exp = this->ctx.real_const(varName.c_str());
+//        double value = stod(valueStr);
+//        if (oper == "==") return exp == value;
+//        if (oper == "!=") return exp != value;
+//        if (oper == "<") return exp < value;
+//        if (oper == "<=") return exp <= value;
+//        if (oper == ">") return exp > value;
+//        if (oper == ">=") return exp >= value;
+//
+//        // TODO
+//        cerr << "不支持的运算符" << oper << endl;
+//    }
+//
+//    return this->ctx.int_const("wrong");
+//}
 
 void DFAModule::trace(Event *event) {
     this->stateNums = {};
@@ -291,4 +445,70 @@ void DFAModule::trace(Event *event) {
     }
 
     cout << "事件" << eventName << "无法找到合适的转移" << endl;
+}
+
+bool DFAModule::isOperator(const char &c) {
+    string operatorStr = "+-*/%<>!=";
+    return operatorStr.find(c) >= 0;
+}
+
+expr DFAModule::generateVarExp(const string &varName) {
+    if (this->varsDecl.find(varName) == this->varsDecl.end()) {
+        cerr << "未声明的变量" << varName << endl;
+    }
+    string varType = this->varsDecl[varName];
+    if (varType == "int") {
+        return this->ctx.int_const(varName.c_str());
+    }
+    else if (varType == "double") {
+        return this->ctx.real_const(varName.c_str());
+    }
+    else {
+        cerr << "变量" << varName << "类型" << varType << "不支持" <<endl;
+        return this->ctx.string_val(varName);
+    }
+}
+
+bool DFAModule::compareOperator(const string &operator1, const string &operator2) {
+    map<string, int> operatorPriority = {
+            {"$", 0},
+            {"==", 1},
+            {"!=", 1},
+            {"<", 2},
+            {"<=", 2},
+            {">", 2},
+            {">=", 2},
+            {"+", 3},
+            {"-", 3},
+            {"*", 4},
+            {"/", 4},
+            {"%", 4}
+    };
+    if (operatorPriority.find(operator1) == operatorPriority.end()) {
+        cerr << "运算符" << operator1 << "不支持" << endl;
+        return false;
+    }
+    if (operatorPriority.find(operator2) == operatorPriority.end()) {
+        cerr << "运算符" << operator2 << "不支持" << endl;
+        return false;
+    }
+    return operatorPriority[operator1] > operatorPriority[operator2];
+}
+
+expr DFAModule::calcExpr(expr &expr1, const string &currentOperator, expr &expr2) {
+    if (currentOperator == "==") return expr1 == expr2;
+    if (currentOperator == "!=") return expr1 != expr2;
+    if (currentOperator == "<") return expr1 < expr2;
+    if (currentOperator == "<=") return expr1 <= expr2;
+    if (currentOperator == ">") return expr1 > expr2;
+    if (currentOperator == ">=") return expr1 >= expr2;
+    if (currentOperator == "+") return expr1 + expr2;
+    if (currentOperator == "-") return expr1 - expr2;
+    if (currentOperator == "*") return expr1 * expr2;
+    if (currentOperator == "/") return expr1 / expr2;
+    if (currentOperator == "%") return expr1 % expr2;
+    else {
+        cerr << "不支持的运算符" << currentOperator << endl;
+        return expr1;
+    }
 }
