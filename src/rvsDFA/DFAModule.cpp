@@ -145,7 +145,7 @@ void DFAModule::addEvent(const string &eventName, const map<string, string> &var
         // 根据变量类型将变量值转换成expr添加到Event类对象中
         if (varType == "int") {
             expr exp_var = this->ctx.int_const(var.first.c_str());
-            expr exp = exp_var == stoi(var.second);
+            expr exp = (exp_var == this->ctx.int_val(var.second.c_str())); // stoi(var.second);
             event->addExpr(exp);
         }
         else if (varType == "real") {
@@ -211,9 +211,6 @@ expr DFAModule::extractExpr(const string &constraint) {
     // expr栈用来记录中间表达式结果
     stack<expr> exprStack;
 
-    // 暂存已出现过的变量名对应的expr
-    map<string, expr> varExpr;
-
     // 先压入最低优先级运算符
     operatorStack.push("$");
 
@@ -251,16 +248,10 @@ expr DFAModule::extractExpr(const string &constraint) {
             }
             else  {
                 // 当前为其他字符则生成完整变量
-                if (varExpr.find(identifier) != varExpr.end()) {
-                    expr exp = varExpr[identifier];
-                    exprStack.push(exp);
-                }
-                else {
-                    // 根据变量名生成变量名expr
-                    expr exp = generateVarExp(identifier);
-                    exprStack.push(exp);
-                    varExpr[identifier] = exp;
-                }
+
+                // 根据变量名生成变量名expr
+                expr exp = generateVarExp(identifier);
+                exprStack.push(exp);
                 identifier.clear();
 
                 if (isspace(c) != 0) {
@@ -333,7 +324,10 @@ expr DFAModule::extractExpr(const string &constraint) {
                     flag = "operand";
                     identifier.push_back(c);
                 }
-                else if (isspace(c) == 0) {
+                else if (isspace(c) != 0) {
+                    flag = "";
+                }
+                else {
                     cerr << "非法字符" << c << endl;
                 }
             }
@@ -341,10 +335,30 @@ expr DFAModule::extractExpr(const string &constraint) {
     }
 
     // 循环结束后需要手动添加结束符, 即循环退栈
+    if (flag == "var") {
+        // 根据变量名生成变量名expr
+        expr exp = generateVarExp(identifier);
+        exprStack.push(exp);
+        identifier.clear();
+    }
+    else if (flag == "operand") {
+        // 分析数的类型得到不同的expr
+        expr exp = generateNumExp(identifier);
+        exprStack.push(exp);
+        identifier.clear();
+    }
+    else if (flag == "operator") {
+        cerr << "表达式" << constraint << "以运算符结尾，非法！" << endl;
+    }
+
     while (operatorStack.size() > 1) {
-        const string& operatorTop = operatorStack.top();
+        const string &operatorTop = operatorStack.top();
         operatorStack.pop();
 
+        if (exprStack.size() < 2) {
+            cerr << "运算数或变量不足，表达式" << constraint << "不合法" << endl;
+            break;
+        }
         expr expr2 = exprStack.top();
         exprStack.pop();
         expr expr1 = exprStack.top();
@@ -407,7 +421,7 @@ expr DFAModule::extractExpr(const string &constraint) {
 //}
 
 void DFAModule::trace(Event *event) {
-    this->stateNums = {};
+    this->stateNums.clear();
     // 如果当前有状态，则优先从此状态出发判断
     if (this->currentStateNum >= 0) {
         State* currentState = this->states[this->currentStateNum];
@@ -448,8 +462,8 @@ void DFAModule::trace(Event *event) {
 }
 
 bool DFAModule::isOperator(const char &c) {
-    string operatorStr = "+-*/%<>!=";
-    return operatorStr.find(c) >= 0;
+    string operatorStr = "+-*/<>!=";
+    return operatorStr.find(c) != string::npos;
 }
 
 expr DFAModule::generateVarExp(const string &varName) {
@@ -469,6 +483,11 @@ expr DFAModule::generateVarExp(const string &varName) {
     }
 }
 
+expr DFAModule::generateNumExp(const string &operand) {
+    if (operand.find('.') >= 0) return this->ctx.real_val(operand.c_str());
+    else return this->ctx.int_val(operand.c_str());
+}
+
 bool DFAModule::compareOperator(const string &operator1, const string &operator2) {
     map<string, int> operatorPriority = {
             {"$", 0},
@@ -481,8 +500,7 @@ bool DFAModule::compareOperator(const string &operator1, const string &operator2
             {"+", 3},
             {"-", 3},
             {"*", 4},
-            {"/", 4},
-            {"%", 4}
+            {"/", 4}
     };
     if (operatorPriority.find(operator1) == operatorPriority.end()) {
         cerr << "运算符" << operator1 << "不支持" << endl;
@@ -506,7 +524,6 @@ expr DFAModule::calcExpr(expr &expr1, const string &currentOperator, expr &expr2
     if (currentOperator == "-") return expr1 - expr2;
     if (currentOperator == "*") return expr1 * expr2;
     if (currentOperator == "/") return expr1 / expr2;
-    if (currentOperator == "%") return expr1 % expr2;
     else {
         cerr << "不支持的运算符" << currentOperator << endl;
         return expr1;

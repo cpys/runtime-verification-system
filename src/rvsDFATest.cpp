@@ -16,7 +16,7 @@ int main() {
     module->addVarDecl("int", "x");
     module->addVarDecl("int", "y");
 
-    module->addState(1, {"x > 3", "y > 0"});
+    module->addState(1, {"x > y + 5", "y > 0"});
     module->addState(2, {"x > 5", "y > 2"});
     module->addState(3, {"x > 7", "y > 5"});
     module->addState(4, {"x > 9", "y > 10"});
