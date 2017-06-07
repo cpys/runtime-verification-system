@@ -8,7 +8,12 @@
 #include <netdb.h>
 #include <cstring>
 #include <unistd.h>
+#include <csignal>
+//#include "../../xmlParser/tinyxml2.h"
+#include "../../tinyxml2/tinyxml2.h"
+#include "server.h"
 using namespace std;
+using namespace tinyxml2;
 
 int serverSocket, clientSocket;
 
@@ -18,7 +23,7 @@ void quit(int signum) {
     exit(0);
 }
 
-int main() {
+void Server (){
     serverSocket = socket(AF_INET, SOCK_STREAM, 0);
 
     struct sockaddr_in serverAddr;
@@ -41,14 +46,27 @@ int main() {
 
     signal(SIGINT, quit);
 
-    char charRecv[100];
+    char charRecv[100] = {0};
     int recvNum;
+    XMLDocument xmlDocument;
     while (true) {
         if ((recvNum = recv(clientSocket, charRecv, 100, 0)) < 0) {
             cerr << "recv error" << endl;
             break;
         }
-        cout << charRecv << endl;
+        string message = charRecv;
+
+
+        XMLError xmlError = xmlDocument.Parse(charRecv);
+        if (xmlError != XML_SUCCESS) {
+            cerr << "Cannot parse " << charRecv << endl;
+            continue;
+        }
+        XMLElement* root = xmlDocument.FirstChildElement();
+        cout << root->Attribute("name") << " " << root->Attribute("value") << endl;
+
+
+//        cout << charRecv << endl;
     }
 
     quit(SIGINT);

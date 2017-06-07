@@ -8,6 +8,8 @@
 #include <netdb.h>
 #include <cstring>
 #include <unistd.h>
+#include <csignal>
+#include <random>
 using namespace std;
 
 int client;
@@ -35,13 +37,22 @@ int main() {
         return 1;
     }
 
-    for (int i = 1; i < 10000; i = (i + 1) % 1000) {
-        string message = "x = " + i;
-        if (send(client, message.c_str(), message.size(), 0) < 0) {
-            cout << "send " << message << "failed!" << endl;
-            break;
+    uniform_int_distribution<int> u(0, 10000);
+    default_random_engine e;
+
+    uniform_int_distribution<int> u2(0, 10);
+    default_random_engine e2;
+
+    for (int i = 1; i < 10000; i = i % 10 + 1) {
+        if (u2(e2) != i) {
+            string message = "<event name=\"event" + to_string(i) + "\" value=\"x = " + to_string(u(e)) + "\"/>";
+            send(client, message.c_str(), message.size(), 0);
+//        if (send(client, message.c_str(), message.size(), 0) < 0) {
+//            cout << "send " << message << "failed!" << endl;
+//            break;
+//        }
+            sleep(1);
         }
-        usleep(500000);
     }
 
     quit(SIGINT);

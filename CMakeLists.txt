@@ -4,6 +4,7 @@ project(runtime-verification-system)
 include_directories(${PROJECT_SOURCE_DIR}/api)
 include_directories(${PROJECT_SOURCE_DIR}/src/rvsDFAInterface)
 include_directories(${PROJECT_SOURCE_DIR}/src/rvsDFA/headers)
+include_directories(${PROJECT_SOURCE_DIR}/src/tinyxml2)
 
 link_directories(${PROJECT_SOURCE_DIR}/lib)
 
@@ -16,10 +17,10 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 aux_source_directory(src/XML_PARSER xmlParser)
 aux_source_directory(src/DFA DFA)
 aux_source_directory(src/newDFA newDFA)
-
 aux_source_directory(src/rvsDFA rvsDFA)
+aux_source_directory(src/tinyxml2 tinyxml2)
 
-set(src ${rvsDFA} src/rvsDFATest.cpp)
+set(src ${rvsDFA} ${tinyxml2} src/rvsDFATest.cpp)
 
 add_executable(rvs ${src})
 

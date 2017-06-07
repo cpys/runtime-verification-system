@@ -3,11 +3,23 @@
 //
 
 #include <iostream>
+#include <sys/socket.h>
+#include <arpa/inet.h>
+#include <netdb.h>
+#include <cstring>
+#include <unistd.h>
+#include <csignal>
+#include <sstream>
 #include <DFAModule.h>
+#include "tinyxml2/tinyxml2.h"
 
 using std::cout;
 using std::cin;
+using std::cerr;
 using std::endl;
+
+void Server(Module*);
+void quit(int);
 
 int main() {
     // 建立模型
@@ -32,28 +44,96 @@ int main() {
 
     module->addSpec("A", {"x > 5"});
 
-    // 模型建立完成后，开始添加事件
-    module->addEvent("event1", {{"x", "6"}});
-    module->addEvent("event5", {{"x", "12"}});
-    module->addEvent("event6", {{"y", "20"}, {"x", "24"}});
+    Server(module);
 
-    // 手动输入事件
-    while (true) {
-        cout << "请输入事件名称：（输入event_end结束）" << endl;
-        string eventName;
-        cin >> eventName;
-        if (eventName == "event_end") break;
-        cout << "请逐行输入变量名和变量值，以空格分隔，输入var_end结束事件内的变量输入：" << endl;
-        string varName, varValue;
-        map<string, string> vars;
-        cin >> varName;
-        while (varName != "var_end") {
-            cin >> varValue;
-            vars[varName] = varValue;
-            cin >> varName;
-        }
-        module->addEvent(eventName, vars);
-    }
+//    // 模型建立完成后，开始添加事件
+//    module->addEvent("event1", {{"x", "6"}});
+//    module->addEvent("event5", {{"x", "12"}});
+//    module->addEvent("event6", {{"y", "20"}, {"x", "24"}});
+//
+//    // 手动输入事件
+//    while (true) {
+//        cout << "请输入事件名称：（输入event_end结束）" << endl;
+//        string eventName;
+//        cin >> eventName;
+//        if (eventName == "event_end") break;
+//        cout << "请逐行输入变量名和变量值，以空格分隔，输入var_end结束事件内的变量输入：" << endl;
+//        string varName, varValue;
+//        map<string, string> vars;
+//        cin >> varName;
+//        while (varName != "var_end") {
+//            cin >> varValue;
+//            vars[varName] = varValue;
+//            cin >> varName;
+//        }
+//        module->addEvent(eventName, vars);
+//    }
 
     return 0;
+}
+
+int serverSocket, clientSocket;
+
+void Server (Module* module){
+    serverSocket = socket(AF_INET, SOCK_STREAM, 0);
+
+    struct sockaddr_in serverAddr;
+
+    serverAddr.sin_family = AF_INET;
+    serverAddr.sin_addr.s_addr = htonl(INADDR_ANY);
+    serverAddr.sin_port = htons(8899);
+
+    bind(serverSocket, (struct sockaddr*)&serverAddr, sizeof(serverAddr));
+
+    listen(serverSocket, 5);
+
+    cout << "server waiting for client connect" << endl;
+
+    clientSocket = accept(serverSocket, NULL, NULL);
+    if (clientSocket < 0) {
+        cerr << "accept error" << endl;
+        return ;
+    }
+
+    signal(SIGINT, quit);
+
+    using namespace tinyxml2;
+
+    char charRecv[50] = {0};
+    int recvNum;
+    XMLDocument xmlDocument;
+    while (true) {
+        memset(charRecv, 0, 50);
+        if ((recvNum = recv(clientSocket, charRecv, 50, 0)) < 0) {
+            cerr << "recv error" << endl;
+            break;
+        }
+
+        cout << charRecv << endl;
+
+        XMLError xmlError = xmlDocument.Parse(charRecv);
+        if (xmlError != XML_SUCCESS) {
+            cerr << "Cannot parse " << charRecv << endl;
+            continue;
+        }
+        XMLElement* root = xmlDocument.FirstChildElement();
+//        cout << root->Attribute("name") << " " << root->Attribute("value") << endl;
+
+        string eventName = root->Attribute("name");
+        string eventValue = root->Attribute("value");
+        std::stringstream ss(eventValue);
+        string eventVar, eventVarOper, eventVarValue;
+        ss >> eventVar >> eventVarOper >> eventVarValue;
+        module->addEvent(eventName, {{eventVar, eventVarValue}});
+
+//        cout << charRecv << endl;
+    }
+
+    quit(SIGINT);
+}
+
+void quit(int signum) {
+    close(serverSocket);
+    close(clientSocket);
+    exit(0);
 }
