@@ -5,6 +5,7 @@ include_directories(${PROJECT_SOURCE_DIR}/api)
 include_directories(${PROJECT_SOURCE_DIR}/src/rvsDFAInterface)
 include_directories(${PROJECT_SOURCE_DIR}/src/rvsDFA/headers)
 include_directories(${PROJECT_SOURCE_DIR}/src/tinyxml2)
+include_directories(${PROJECT_SOURCE_DIR}/src/netFilterClient)
 
 link_directories(${PROJECT_SOURCE_DIR}/lib)
 
@@ -19,8 +20,9 @@ aux_source_directory(src/DFA DFA)
 aux_source_directory(src/newDFA newDFA)
 aux_source_directory(src/rvsDFA rvsDFA)
 aux_source_directory(src/tinyxml2 tinyxml2)
+aux_source_directory(src/netFilterClient netFilterClient)
 
-set(src ${rvsDFA} ${tinyxml2} src/rvsDFATest.cpp)
+set(src ${rvsDFA} ${tinyxml2} ${netFilterClient} src/rvsDFATest2.cpp )
 
 add_executable(rvs ${src})
 
