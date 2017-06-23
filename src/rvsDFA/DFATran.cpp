@@ -2,9 +2,11 @@
 // Created by chenkuan on 17-5-29.
 //
 
-#include "headers/DFATran.h"
+#include <DFATran.h>
+#include <State.h>
+#include <Event.h>
 
-void DFATran::setName(const string & tranName) {
+void DFATran::setName(const string &tranName) {
     this->tranName = tranName;
 }
 
@@ -16,7 +18,7 @@ void DFATran::setDestState(State *state) {
     this->destState = state;
 }
 
-void DFATran::addExpr(expr & exp) {
+void DFATran::addExpr(expr &exp) {
     this->exps.push_back(exp);
 }
 
@@ -52,15 +54,15 @@ bool DFATran::checkEvent(Event *event, solver &slv) {
 
     slv.reset();
     // 先添加源状态的表达式集
-    for (auto& exp : this->sourceState->getExps()) {
+    for (auto &exp : this->sourceState->getExps()) {
         slv.add(exp);
     }
     // 再添加转移上的表达式集
-    for (auto& exp : this->exps) {
+    for (auto &exp : this->exps) {
         slv.add(exp);
     }
     // 最后添加事件上的表达式集
-    for (auto& exp : event->getExps()) {
+    for (auto &exp : event->getExps()) {
         slv.add(exp);
     }
 

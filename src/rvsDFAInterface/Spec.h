@@ -7,7 +7,7 @@
 
 #include <string>
 #include <vector>
-#include <c++/z3++.h>
+#include <z3++.h>
 
 using std::string;
 using std::vector;

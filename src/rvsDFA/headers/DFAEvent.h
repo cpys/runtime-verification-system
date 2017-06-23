@@ -9,17 +9,20 @@
 
 class DFAEvent : public Event {
 
-public:
+  public:
     DFAEvent() = default;
+
     ~DFAEvent() override = default;
 
-    void setEventName(const string &eventName) override ;
-    void addExpr(expr &exp) override ;
+    void setEventName(const string &eventName) override;
 
-    const string &getEventName() const override ;
+    void addExpr(expr &exp) override;
+
+    const string &getEventName() const override;
+
     const vector<expr> &getExps() const override;
 
-private:
+  private:
     string eventName;
     vector<expr> exps;
 };

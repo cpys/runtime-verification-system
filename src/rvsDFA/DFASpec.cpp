@@ -4,7 +4,7 @@
 
 #include <DFASpec.h>
 
-void DFASpec::addTempWord(const string & tempWord) {
+void DFASpec::addTempWord(const string &tempWord) {
     this->tempWord = tempWord;
 }
 
@@ -12,7 +12,7 @@ void DFASpec::addConstraint(const string &constraint) {
     this->constraints.push_back(constraint);
 }
 
-void DFASpec::addExpr(expr & exp) {
+void DFASpec::addExpr(expr &exp) {
     this->exps.push_back(exp);
 }
 
@@ -31,7 +31,7 @@ const vector<string> &DFASpec::getConstraints() const {
 const string DFASpec::toString() const {
     string ans = this->tempWord;
     ans.push_back(' ');
-    for (auto& constraint : this->constraints) {
+    for (auto &constraint : this->constraints) {
         ans.append(constraint);
         ans.push_back(' ');
     }

@@ -10,6 +10,7 @@
 #include <unistd.h>
 #include <csignal>
 #include <sstream>
+#include <Module.h>
 #include <DFAModule.h>
 #include "tinyxml2/tinyxml2.h"
 
@@ -44,30 +45,30 @@ int main() {
 
     module->addSpec("A", {"x > 5"});
 
-    Server(module);
+//    Server(module);
 
-//    // 模型建立完成后，开始添加事件
-//    module->addEvent("event1", {{"x", "6"}});
-//    module->addEvent("event5", {{"x", "12"}});
-//    module->addEvent("event6", {{"y", "20"}, {"x", "24"}});
-//
-//    // 手动输入事件
-//    while (true) {
-//        cout << "请输入事件名称：（输入event_end结束）" << endl;
-//        string eventName;
-//        cin >> eventName;
-//        if (eventName == "event_end") break;
-//        cout << "请逐行输入变量名和变量值，以空格分隔，输入var_end结束事件内的变量输入：" << endl;
-//        string varName, varValue;
-//        map<string, string> vars;
-//        cin >> varName;
-//        while (varName != "var_end") {
-//            cin >> varValue;
-//            vars[varName] = varValue;
-//            cin >> varName;
-//        }
-//        module->addEvent(eventName, vars);
-//    }
+    // 模型建立完成后，开始添加事件
+    module->addEvent("event1", {{"x", "6"}});
+    module->addEvent("event5", {{"x", "12"}});
+    module->addEvent("event6", {{"y", "20"}, {"x", "24"}});
+
+    // 手动输入事件
+    while (true) {
+        cout << "请输入事件名称：（输入event_end结束）" << endl;
+        string eventName;
+        cin >> eventName;
+        if (eventName == "event_end") break;
+        cout << "请逐行输入变量名和变量值，以空格分隔，输入var_end结束事件内的变量输入：" << endl;
+        string varName, varValue;
+        map<string, string> vars;
+        cin >> varName;
+        while (varName != "var_end") {
+            cin >> varValue;
+            vars[varName] = varValue;
+            cin >> varName;
+        }
+        module->addEvent(eventName, vars);
+    }
 
     return 0;
 }

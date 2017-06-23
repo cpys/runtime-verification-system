@@ -5,25 +5,38 @@
 #ifndef RUNTIME_VERIFICATION_SYSTEM_DFASPEC_H
 #define RUNTIME_VERIFICATION_SYSTEM_DFASPEC_H
 
-#include <Spec.h>
+#include <string>
+#include <vector>
+#include <z3++.h>
+
+using std::string;
+using std::vector;
+using z3::expr;
+
+class Spec;
 
 class DFASpec : public Spec {
 
-public:
+  public:
     DFASpec() = default;
+
     ~DFASpec() override = default;
 
-    void addTempWord(const string &tempWord) override ;
-    void addConstraint(const string &constraint) override ;
+    void addTempWord(const string &tempWord) override;
+
+    void addConstraint(const string &constraint) override;
+
     void addExpr(expr &exp) override;
 
-    const vector<expr> &getExps() const override ;
-    const string &getTempWord() const override ;
-    const vector<string> &getConstraints() const override ;
+    const vector<expr> &getExps() const override;
 
-    const string toString() const override ;
+    const string &getTempWord() const override;
 
-private:
+    const vector<string> &getConstraints() const override;
+
+    const string toString() const override;
+
+  private:
     string tempWord;
     vector<string> constraints;
     vector<expr> exps;

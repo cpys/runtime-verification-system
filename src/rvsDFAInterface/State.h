@@ -6,14 +6,14 @@
 #define RUNTIME_VERIFICATION_SYSTEM_STATE_H
 
 #include <vector>
-#include <Event.h>
-#include <c++/z3++.h>
+#include <z3++.h>
 
 using std::vector;
 using z3::expr;
 using z3::solver;
 
 class Tran;
+class Event;
 
 class State {
 

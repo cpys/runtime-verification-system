@@ -7,14 +7,15 @@
 
 #include <string>
 #include <vector>
-#include <State.h>
-#include <Event.h>
-#include <c++/z3++.h>
+#include <z3++.h>
 
 using std::string;
 using std::vector;
 using z3::expr;
 using z3::solver;
+
+class State;
+class Event;
 
 class Tran {
 

@@ -3,6 +3,8 @@
 //
 
 #include <DFAState.h>
+#include <Event.h>
+#include <Tran.h>
 
 DFAState::DFAState() {
     this->stateNum = -1;
@@ -26,20 +28,20 @@ int DFAState::getStateNum() const {
 
 int DFAState::getNextState(Event *event, solver &slv) {
     // 遍历此状态出发的转移关系，依次判断是否符合
-    for (auto& tran : this->trans) {
+    for (auto &tran : this->trans) {
         if (tran->getName() != event->getEventName()) continue;
 
         slv.reset();
         // 先添加状态内的expr
-        for (auto& exp : this->exps) {
+        for (auto &exp : this->exps) {
             slv.add(exp);
         }
         // 再添加转移内的expr
-        for (auto& exp : tran->getExps()) {
+        for (auto &exp : tran->getExps()) {
             slv.add(exp);
         }
         // 再添加事件内的expr
-        for (auto& exp : event->getExps()) {
+        for (auto &exp : event->getExps()) {
             slv.add(exp);
         }
         if (slv.check() == z3::sat) {

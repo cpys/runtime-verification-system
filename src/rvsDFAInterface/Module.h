@@ -49,11 +49,6 @@ public:
      * @param 事件名称 事件中变量值<变量名：变量值>
      */
     virtual void addEvent(const string&, const map<string, string>&) = 0;
-
-    /*
-     * 检查添加的事件流是否符合判定逻辑
-     */
-    virtual void check() = 0;
 };
 
 
