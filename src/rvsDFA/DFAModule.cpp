@@ -4,6 +4,7 @@
 
 #include <DFAModule.h>
 #include <regex>
+#include <string>
 #include <DFAState.h>
 #include <DFATran.h>
 #include <DFASpec.h>
@@ -33,12 +34,12 @@ DFAModule::~DFAModule() {
             spec = nullptr;
         }
     }
-    for (auto &event : this->events) {
-        if (event != nullptr) {
-            delete (event);
-            event = nullptr;
-        }
-    }
+//    for (auto &event : this->events) {
+//        if (event != nullptr) {
+//            delete (event);
+//            event = nullptr;
+//        }
+//    }
     slv.reset();
 }
 
@@ -94,10 +95,9 @@ void DFAModule::addTran(const string &tranName, int sourceStateNum, int destStat
     this->trans[tranName] = tran;
 }
 
-void DFAModule::addSpec(const string &tempWord, const vector<string> &tempConstraints) {
+void DFAModule::addSpec(const vector<string> &tempConstraints) {
     // 构造一个Spec类对象
     Spec *spec = new DFASpec();
-    spec->addTempWord(tempWord);
     // 将判定逻辑的约束字符串解析成expr,添加到Spec对象的expr集合中
     for (auto &constraint : tempConstraints) {
         spec->addConstraint(constraint);
@@ -107,17 +107,9 @@ void DFAModule::addSpec(const string &tempWord, const vector<string> &tempConstr
 
     // 将Spec类对象添加到module中
     this->specs.push_back(spec);
-    // 根据Spec时序词的不同，给其正确性赋相应初值
-    if (tempWord == "G") {
-        this->specValidity[spec] = true;
-    } else if (tempWord == "A") {
-        this->specValidity[spec] = false;
-    } else {
-        cerr << "不合法的时序词" << tempWord << endl;
-    }
 }
 
-void DFAModule::addEvent(const string &eventName, const map<string, string> &vars) {
+bool DFAModule::addEvent(const string &eventName, const map<string, string> &vars) {
     // 构造一个Event类对象
     Event *event = new DFAEvent();
     event->setEventName(eventName);
@@ -147,14 +139,49 @@ void DFAModule::addEvent(const string &eventName, const map<string, string> &var
     // 每次添加事件时进行轨迹描绘，即进行事件的转移
     if (!this->trace(event)) {
         cerr << "事件" << eventName << "转移失败!" << endl;
-        return;
+        return false;
     }
 
-    // 每次添加事件时对spec进行check
-    this->check();
+    // 状态转移成功后为状态添加新值表达式
+    State* state = this->states[this->currentStateNum];
+    if (state == nullptr) {
+        cerr << "不存在新状态" << this->currentStateNum << endl;
+        return false;
+    }
+    // 先清空状态中已有的实际值表达式
+    state->clearValuesExpr();
+    for (auto &kv : vars) {
+        if (this->varsDecl.find(kv.first) == this->varsDecl.end()) {
+            cerr << "未声明变量" << kv.first << endl;
+            continue;
+        }
+        string varType = varsDecl[kv.first];
+        if (varType == "int") {
+            expr exp_var = this->ctx.int_const((kv.first + std::to_string(this->currentStateNum)).c_str());
+            expr exp = (exp_var == this->ctx.int_val(kv.second.c_str()));
+            state->addValuesExpr(exp);
+        } else if (varType == "double") {
+            expr exp_var = this->ctx.real_const((kv.first + std::to_string(this->currentStateNum)).c_str());
+            expr exp = (exp_var == this->ctx.real_val(kv.second.c_str()));
+            state->addValuesExpr(exp);
+        } else {
+            cerr << "变量类型" << varType << "不支持" << endl;
+            continue;
+        }
+    }
+    this->stateTracks.push_back(state);
+    // 对状态轨迹的跟踪限制长度
+    if (this->stateTracks.size() > this->maxStateTracksLength) {
+        this->stateTracks.pop_front();
+    }
 
-    // 对历史事件进行记录
-    this->events.push_back(event);
+    // 轨迹跟踪完成后对每一条spec进行check
+    bool flag = this->check();
+
+//    // 对历史事件进行记录
+//    this->events.push_back(event);
+
+    return flag;
 }
 
 expr DFAModule::extractExpr(const string &constraint) {
@@ -305,7 +332,7 @@ expr DFAModule::extractExpr(const string &constraint) {
 }
 
 bool DFAModule::trace(Event *event) {
-    this->stateNums.clear();
+//    this->stateNums.clear();
     // 如果当前有状态，则优先从此状态出发判断
     if (this->currentStateNum >= 0) {
         State *currentState = this->states[this->currentStateNum];
@@ -315,7 +342,7 @@ bool DFAModule::trace(Event *event) {
         int nextState = currentState->getNextState(event, this->slv);
         if (nextState >= 0) {
             cout << "事件" << event->getEventName() << "将当前状态" << this->currentStateNum << "转移到了状态" << nextState << endl;
-            this->stateNums = {this->currentStateNum, nextState};
+//            this->stateNums = {this->currentStateNum, nextState};
             this->currentStateNum = nextState;
             return true;
         }
@@ -332,7 +359,7 @@ bool DFAModule::trace(Event *event) {
             if (couldTran) {
                 cout << "事件" << eventName << "产生了从状态" << currentTran->getSourceStateNum() << "到状态" << currentTran->getDestStateNum() << "的转移" << endl;
                 this->currentStateNum = currentTran->getDestStateNum();
-                this->stateNums = {currentTran->getSourceStateNum(), this->currentStateNum};
+//                this->stateNums = {currentTran->getSourceStateNum(), this->currentStateNum};
                 return true;
             }
         }
@@ -408,36 +435,46 @@ expr DFAModule::calcExpr(expr &expr1, const string &currentOperator, expr &expr2
     }
 }
 
-void DFAModule::check() {
-    // 每次添加新事件时转移成功后调用check，检查spec
-    for (auto &spec : this->specs) {
-        // 跳过已成功验证过的逻辑
-        if (spec->getTempWord() == "A" && this->specValidity[spec] == true) continue;
-        if (spec->getTempWord() == "G" && this->specValidity[spec] == false) continue;
-
-        this->slv.reset();
-        // 先添加spec的表达式
-        for (auto &exp : spec->getExps()) {
+bool DFAModule::check() {
+    // 先将状态轨迹中的所有表达式添加到solver中
+    this->slv.reset();
+    for (auto &state : this->stateTracks) {
+        for (auto &exp : state->getValuesExps()) {
             this->slv.add(exp);
-        }
-        // 再添加状态中的表达式
-        for (auto &stateNum : this->stateNums) {
-            for (auto &exp : this->states[stateNum]->getExps()) {
-                this->slv.add(exp);
-            }
-        }
-
-        z3::check_result result = slv.check();
-        if (result == z3::sat && spec->getTempWord() == "A") {
-            // TODO
-            cout << "验证逻辑" << spec->toString() << "通过验证" << endl;
-            this->specValidity[spec] = true;
-        }
-        if (result == z3::unsat && spec->getTempWord() == "G") {
-            // TODO
-            cout << "验证逻辑" << spec->toString() << "验证失败" << endl;
-            this->specValidity[spec] = false;
         }
     }
 
+    bool flag = true;
+    // 检查每一条spec
+    for (auto &spec : this->specs) {
+        solver slvt = this->slv;
+
+        // 先添加spec的表达式
+        for (auto &exp : spec->getExps()) {
+            slvt.add(exp);
+        }
+
+        z3::check_result result = slvt.check();
+        if (result == z3::sat) {
+            cout << "验证逻辑" << spec->toString() << "通过验证" << endl;
+        }
+        if (result == z3::unsat) {
+            cout << "验证逻辑" << spec->toString() << "验证失败" << endl;
+            flag = false;
+        }
+    }
+
+    return flag;
+}
+
+void DFAModule::initModule() {
+    map<string, string> newVarsDecl;    // 包含编号的变量声明，变量名：类型
+    // 遍历原有的变量声明，同时遍历声明的状态编号，为可能的带编号变量名添加声明
+    for (auto& kvVarDecl : this->varsDecl) {
+        newVarsDecl[kvVarDecl.first] = kvVarDecl.second;
+        for (auto& kvState : this->states) {
+            newVarsDecl[kvVarDecl.first + std::to_string(kvState.first)] = kvVarDecl.second;
+        }
+    }
+    this->varsDecl = newVarsDecl;
 }

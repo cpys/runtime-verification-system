@@ -57,6 +57,23 @@ public:
      * @return 表达式集合
      */
     virtual const vector<expr> &getExps() const = 0;
+
+    /*
+     * 向状态内值表达式集合中添加expr
+     * @param expr
+     */
+    virtual void addValuesExpr(expr&) = 0;
+
+    /*
+     * 获取状态中的值表达式集合
+     * @return 值表达式集合
+     */
+    virtual const vector<expr> &getValuesExps() const = 0;
+
+    /*
+     * 清空状态中的值表达式
+     */
+    virtual void clearValuesExpr() = 0;
 };
 
 

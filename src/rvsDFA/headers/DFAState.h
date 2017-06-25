@@ -35,11 +35,17 @@ class DFAState : public State {
 
     const vector<expr> &getExps() const override;
 
+    void addValuesExpr(expr &exp) override;
+    const vector<expr> &getValuesExps() const override;
+    void clearValuesExpr() override;
+
   private:
     int stateNum;
 
     vector<expr> exps; // 表达式集合
     vector<Tran *> trans;   // 转移数组
+
+    vector<expr> valuesExps;    // 表达状态实际值的表达式集合
 };
 
 

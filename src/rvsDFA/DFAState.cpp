@@ -58,3 +58,15 @@ int DFAState::getNextState(Event *event, solver &slv) {
 const vector<expr> &DFAState::getExps() const {
     return this->exps;
 }
+
+void DFAState::addValuesExpr(expr &exp) {
+    this->valuesExps.push_back(exp);
+}
+
+const vector<expr> &DFAState::getValuesExps() const {
+    return this->valuesExps;
+}
+
+void DFAState::clearValuesExpr() {
+    this->valuesExps.clear();
+}

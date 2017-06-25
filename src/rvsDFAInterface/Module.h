@@ -40,15 +40,20 @@ public:
 
     /*
      * 添加一个判定逻辑
-     * @param 时序词 判定逻辑
+     * @param 判定逻辑
      */
-    virtual void addSpec(const string&, const vector<string>&) = 0;
+    virtual void addSpec(const vector<string>&) = 0;
 
     /*
      * 添加一个事件
      * @param 事件名称 事件中变量值<变量名：变量值>
      */
-    virtual void addEvent(const string&, const map<string, string>&) = 0;
+    virtual bool addEvent(const string&, const map<string, string>&) = 0;
+
+    /*
+     * 初始化模型，目的是允许带编号的变量名称
+     */
+    virtual void initModule() = 0;
 };
 
 

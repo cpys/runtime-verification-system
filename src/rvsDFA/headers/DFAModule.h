@@ -9,11 +9,13 @@
 #include <map>
 #include <string>
 #include <vector>
+#include <list>
 #include <z3++.h>
 
 using std::map;
 using std::string;
 using std::vector;
+using std::list;
 using z3::expr;
 using z3::context;
 using z3::solver;
@@ -33,24 +35,27 @@ class DFAModule : public Module {
 
     void addTran(const string &tranName, int sourceStateName, int destStateNum, const vector<string> &tranConstraints) override;
 
-    void addSpec(const string &tempWord, const vector<string> &tempConstraints) override;
+    void addSpec(const vector<string> &tempConstraints) override;
 
-    void addEvent(const string &eventName, const map<string, string> &vars) override;
+    bool addEvent(const string &eventName, const map<string, string> &vars) override;
+
+    void initModule() override;
 
   private:
     map<string, string> varsDecl;   // 所有变量声明，变量名：类型
     map<int, State *> states;    // 所有状态的声明，编号：状态
     map<string, Tran *> trans;   // 所有转移的声明，转移名：转移
     vector<Spec *> specs;    // 所有判定逻辑的声明
-    vector<Event *> events;  // 所有事件的声明
+//    vector<Event *> events;  // 所有事件的声明
 
     context ctx;    // 检查状态转移的z3上下文
     solver slv{ctx}; // 检查状态转移的z3求解器
 
-    map<Spec *, bool> specValidity;  // 所有判定逻辑的正确性
-
     int currentStateNum = -1;    // 模型执行过程中当前状态编号
-    vector<int> stateNums; // 事件加入过程中判断转移时产生的活跃状态编号，可能为0,1,2个
+//    vector<int> stateNums; // 事件加入过程中判断转移时产生的活跃状态编号，可能为0,1,2个
+
+    list<State*> stateTracks;  // 状态轨迹
+    static const int maxStateTracksLength = 10; // 状态轨迹跟踪的最大长度
 
     /*
      * 对字符串约束进行解析，提取出expr返回
@@ -103,8 +108,9 @@ class DFAModule : public Module {
 
     /*
     * 检查添加的事件流是否符合判定逻辑
+    * @return 返回验证结果
     */
-    void check();
+    bool check();
 };
 
 
