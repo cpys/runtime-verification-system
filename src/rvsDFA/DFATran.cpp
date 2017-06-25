@@ -53,16 +53,20 @@ bool DFATran::checkEvent(Event *event, solver &slv) {
     if (event->getEventName() != this->tranName) return false;
 
     slv.reset();
-    // 先添加源状态的表达式集
-    for (auto &exp : this->sourceState->getExps()) {
-        slv.add(exp);
-    }
-    // 再添加转移上的表达式集
+//    // 先添加源状态的表达式集
+//    for (auto &exp : this->sourceState->getExps()) {
+//        slv.add(exp);
+//    }
+    // 先添加转移上的表达式集
     for (auto &exp : this->exps) {
         slv.add(exp);
     }
-    // 最后添加事件上的表达式集
+    // 再添加事件上的表达式集
     for (auto &exp : event->getExps()) {
+        slv.add(exp);
+    }
+    // 最后添加下一状态上的表达式集
+    for (auto &exp : this->destState->getExps()) {
         slv.add(exp);
     }
 

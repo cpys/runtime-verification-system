@@ -4,13 +4,9 @@
 
 #include <DFAModule.h>
 #include <regex>
-#include <State.h>
 #include <DFAState.h>
-#include <Tran.h>
 #include <DFATran.h>
-#include <Spec.h>
 #include <DFASpec.h>
-#include <Event.h>
 #include <DFAEvent.h>
 
 using std::cout;

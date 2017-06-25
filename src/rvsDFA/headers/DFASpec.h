@@ -5,6 +5,7 @@
 #ifndef RUNTIME_VERIFICATION_SYSTEM_DFASPEC_H
 #define RUNTIME_VERIFICATION_SYSTEM_DFASPEC_H
 
+#include <Spec.h>
 #include <string>
 #include <vector>
 #include <z3++.h>
@@ -12,8 +13,6 @@
 using std::string;
 using std::vector;
 using z3::expr;
-
-class Spec;
 
 class DFASpec : public Spec {
 

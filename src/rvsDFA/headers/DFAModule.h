@@ -5,6 +5,7 @@
 #ifndef RUNTIME_VERIFICATION_SYSTEM_DFAMODULE_H
 #define RUNTIME_VERIFICATION_SYSTEM_DFAMODULE_H
 
+#include <Module.h>
 #include <map>
 #include <string>
 #include <vector>
@@ -17,7 +18,6 @@ using z3::expr;
 using z3::context;
 using z3::solver;
 
-class Module;
 class State;
 class Tran;
 class Spec;

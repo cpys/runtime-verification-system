@@ -5,6 +5,7 @@
 #ifndef RUNTIME_VERIFICATION_SYSTEM_DFATRAN_H
 #define RUNTIME_VERIFICATION_SYSTEM_DFATRAN_H
 
+#include <Tran.h>
 #include <string>
 #include <vector>
 #include <z3++.h>
@@ -14,10 +15,7 @@ using std::vector;
 using z3::expr;
 using z3::solver;
 
-class Tran;
-
 class State;
-
 class Event;
 
 class DFATran : public Tran {

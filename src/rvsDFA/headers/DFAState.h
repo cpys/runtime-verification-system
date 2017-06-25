@@ -5,6 +5,7 @@
 #ifndef RUNTIME_VERIFICATION_SYSTEM_DFASTATE_H
 #define RUNTIME_VERIFICATION_SYSTEM_DFASTATE_H
 
+#include <State.h>
 #include <vector>
 #include <z3++.h>
 
@@ -12,10 +13,7 @@ using std::vector;
 using z3::expr;
 using z3::solver;
 
-class State;
-
 class Tran;
-
 class Event;
 
 class DFAState : public State {

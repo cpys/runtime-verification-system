@@ -32,16 +32,20 @@ int DFAState::getNextState(Event *event, solver &slv) {
         if (tran->getName() != event->getEventName()) continue;
 
         slv.reset();
-        // 先添加状态内的expr
-        for (auto &exp : this->exps) {
-            slv.add(exp);
-        }
+//        // 先添加状态内的expr
+//        for (auto &exp : this->exps) {
+//            slv.add(exp);
+//        }
         // 再添加转移内的expr
         for (auto &exp : tran->getExps()) {
             slv.add(exp);
         }
         // 再添加事件内的expr
         for (auto &exp : event->getExps()) {
+            slv.add(exp);
+        }
+        // 再添加下一状态的expr
+        for (auto &exp : tran->getDestState()->getExps()) {
             slv.add(exp);
         }
         if (slv.check() == z3::sat) {
