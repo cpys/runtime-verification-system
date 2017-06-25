@@ -15,27 +15,28 @@ using z3::expr;
 
 class Spec {
 
-public:
+  public:
     Spec() = default;
+
     virtual ~Spec() = default;
 
     /*
      * 添加时序词
      * @param 时序词
      */
-    virtual void addTempWord(const string&) = 0;
+    virtual void addTempWord(const string &) = 0;
 
     /*
      * 添加字符串约束
      * @param 字符串约束
      */
-    virtual void addConstraint(const string&) = 0;
+    virtual void addConstraint(const string &) = 0;
 
     /*
      * 添加expr
      * @param expr
      */
-    virtual void addExpr(expr&) = 0;
+    virtual void addExpr(expr &) = 0;
 
     /*
      * 获取表达式列表

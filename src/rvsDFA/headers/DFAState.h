@@ -36,7 +36,9 @@ class DFAState : public State {
     const vector<expr> &getExps() const override;
 
     void addValuesExpr(expr &exp) override;
+
     const vector<expr> &getValuesExps() const override;
+
     void clearValuesExpr() override;
 
   private:

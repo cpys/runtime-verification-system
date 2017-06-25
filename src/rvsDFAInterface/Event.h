@@ -15,21 +15,22 @@ using z3::expr;
 
 class Event {
 
-public:
+  public:
     Event() = default;
+
     virtual ~Event() = default;
 
     /*
      * 设置事件名称
      * @param 事件名称
      */
-    virtual void setEventName(const string&) = 0;
+    virtual void setEventName(const string &) = 0;
 
     /*
      * 添加expr
      * @param expr
      */
-    virtual void addExpr(expr&) = 0;
+    virtual void addExpr(expr &) = 0;
 
     /*
      * 获取事件名称

@@ -4,7 +4,6 @@
 
 #include <DFAModule.h>
 #include <regex>
-#include <string>
 #include <DFAState.h>
 #include <DFATran.h>
 #include <DFASpec.h>
@@ -66,7 +65,8 @@ void DFAModule::addState(int stateNum, const vector<string> &stateConstraints) {
     this->states[stateNum] = state;
 }
 
-void DFAModule::addTran(const string &tranName, int sourceStateNum, int destStateNum, const vector<string> &tranConstraints) {
+void DFAModule::addTran(const string &tranName, int sourceStateNum, int destStateNum,
+                        const vector<string> &tranConstraints) {
     // 取出源状态编号对应的状态
     State *sourceState = this->states[sourceStateNum];
     if (sourceState == nullptr) {
@@ -143,7 +143,7 @@ bool DFAModule::addEvent(const string &eventName, const map<string, string> &var
     }
 
     // 状态转移成功后为状态添加新值表达式
-    State* state = this->states[this->currentStateNum];
+    State *state = this->states[this->currentStateNum];
     if (state == nullptr) {
         cerr << "不存在新状态" << this->currentStateNum << endl;
         return false;
@@ -357,7 +357,8 @@ bool DFAModule::trace(Event *event) {
             Tran *currentTran = tranMap.second;
             bool couldTran = currentTran->checkEvent(event, this->slv);
             if (couldTran) {
-                cout << "事件" << eventName << "产生了从状态" << currentTran->getSourceStateNum() << "到状态" << currentTran->getDestStateNum() << "的转移" << endl;
+                cout << "事件" << eventName << "产生了从状态" << currentTran->getSourceStateNum() << "到状态"
+                     << currentTran->getDestStateNum() << "的转移" << endl;
                 this->currentStateNum = currentTran->getDestStateNum();
 //                this->stateNums = {currentTran->getSourceStateNum(), this->currentStateNum};
                 return true;
@@ -470,9 +471,9 @@ bool DFAModule::check() {
 void DFAModule::initModule() {
     map<string, string> newVarsDecl;    // 包含编号的变量声明，变量名：类型
     // 遍历原有的变量声明，同时遍历声明的状态编号，为可能的带编号变量名添加声明
-    for (auto& kvVarDecl : this->varsDecl) {
+    for (auto &kvVarDecl : this->varsDecl) {
         newVarsDecl[kvVarDecl.first] = kvVarDecl.second;
-        for (auto& kvState : this->states) {
+        for (auto &kvState : this->states) {
             newVarsDecl[kvVarDecl.first + std::to_string(kvState.first)] = kvVarDecl.second;
         }
     }

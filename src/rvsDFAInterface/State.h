@@ -17,8 +17,9 @@ class Event;
 
 class State {
 
-public:
+  public:
     State() = default;
+
     virtual ~State() = default;
 
     /*
@@ -31,13 +32,13 @@ public:
      * 向状态内expr集合中添加expr
      * @param expr
      */
-    virtual void addExpr(expr&) = 0;
+    virtual void addExpr(expr &) = 0;
 
     /*
      * 添加转移
      * @param 转移指针
      */
-    virtual void addTran(Tran*) = 0;
+    virtual void addTran(Tran *) = 0;
 
     /*
      * 获取状态编号
@@ -50,7 +51,7 @@ public:
      * @param 事件 求解器
      * @return 下一状态
      */
-    virtual int getNextState(Event*, solver&) = 0;
+    virtual int getNextState(Event *, solver &) = 0;
 
     /*
      * 获取状态中的表达式集合
@@ -62,7 +63,7 @@ public:
      * 向状态内值表达式集合中添加expr
      * @param expr
      */
-    virtual void addValuesExpr(expr&) = 0;
+    virtual void addValuesExpr(expr &) = 0;
 
     /*
      * 获取状态中的值表达式集合

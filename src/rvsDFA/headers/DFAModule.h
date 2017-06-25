@@ -33,13 +33,14 @@ class DFAModule : public Module {
 
     void addState(int stateNum, const vector<string> &stateConstraints) override;
 
-    void addTran(const string &tranName, int sourceStateName, int destStateNum, const vector<string> &tranConstraints) override;
+    void addTran(const string &tranName, int sourceStateName, int destStateNum,
+                 const vector<string> &tranConstraints) override;
+
+    void initModule() override;
 
     void addSpec(const vector<string> &tempConstraints) override;
 
     bool addEvent(const string &eventName, const map<string, string> &vars) override;
-
-    void initModule() override;
 
   private:
     map<string, string> varsDecl;   // 所有变量声明，变量名：类型
@@ -54,7 +55,7 @@ class DFAModule : public Module {
     int currentStateNum = -1;    // 模型执行过程中当前状态编号
 //    vector<int> stateNums; // 事件加入过程中判断转移时产生的活跃状态编号，可能为0,1,2个
 
-    list<State*> stateTracks;  // 状态轨迹
+    list<State *> stateTracks;  // 状态轨迹
     static const int maxStateTracksLength = 10; // 状态轨迹跟踪的最大长度
 
     /*

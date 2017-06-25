@@ -43,9 +43,10 @@ int main() {
     module->addTran("event5", 6, 4, {"x > 9"});
     module->addTran("event6", 4, 5, {"y > 17", "x > 23"});
 
+    module->initModule();
+
     module->addSpec({"x3 > x2"});
 
-    module->initModule();
 
 //    Server(module);
 

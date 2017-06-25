@@ -19,33 +19,34 @@ class Event;
 
 class Tran {
 
-public:
+  public:
     Tran() = default;
+
     virtual ~Tran() = default;
 
     /*
      * 设置转移类的名称
      * @param 转移名称
      */
-    virtual void setName(const string&) = 0;
+    virtual void setName(const string &) = 0;
 
     /*
      * 设置转移源状态
      * @param 源状态
      */
-    virtual void setSourceState(State*) = 0;
+    virtual void setSourceState(State *) = 0;
 
     /*
      * 设置转移目标状态
      * @param 目标状态
      */
-    virtual void setDestState(State*) = 0;
+    virtual void setDestState(State *) = 0;
 
     /*
      * 添加expr到expr集合中
      * @param expr
      */
-    virtual void addExpr(expr&) = 0;
+    virtual void addExpr(expr &) = 0;
 
     /*
      * 获取转移的事件名称
@@ -57,13 +58,13 @@ public:
      * 获取源状态
      * @return 源状态
      */
-    virtual State* getSourceState() const = 0;
+    virtual State *getSourceState() const = 0;
 
     /*
      * 获取目标状态
      * @return 目标状态
      */
-    virtual State* getDestState() const = 0;
+    virtual State *getDestState() const = 0;
 
     /*
      * 获取转移源状态编号
@@ -88,7 +89,7 @@ public:
      * @param 事件 求解器
      * @return 该转移是否符合
      */
-    virtual bool checkEvent(Event*, solver&) = 0;
+    virtual bool checkEvent(Event *, solver &) = 0;
 };
 
 
