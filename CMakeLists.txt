@@ -4,6 +4,7 @@ project(runtime-verification-system)
 include_directories(${PROJECT_SOURCE_DIR}/src/rvsDFAInterface)
 include_directories(${PROJECT_SOURCE_DIR}/src/rvsDFA/headers)
 include_directories(${PROJECT_SOURCE_DIR}/src/tinyxml2)
+include_directories(${PROJECT_SOURCE_DIR}/src/serialForward)
 #include_directories(${PROJECT_SOURCE_DIR}/src/netFilterClient)
 
 set(EXECUTABLE_OUTPUT_PATH ${PROJECT_BINARY_DIR}/bin)
@@ -18,8 +19,9 @@ aux_source_directory(src/newDFA newDFA)
 aux_source_directory(src/rvsDFA rvsDFA)
 aux_source_directory(src/tinyxml2 tinyxml2)
 aux_source_directory(src/netFilterClient netFilterClient)
+aux_source_directory(src/serialForward serialForward)
 
-set(src ${rvsDFA} ${tinyxml2} src/rvsDFATest.cpp )
+set(src ${rvsDFA} ${tinyxml2} ${serialForward} src/rvsDFATestSerial.cpp )
 
 add_executable(rvs ${src})
 
