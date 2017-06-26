@@ -16,14 +16,19 @@ class DFAEvent : public Event {
 
     void setEventName(const string &eventName) override;
 
+    void setEventVars(const map<string, string> &vars) override;
+
     void addExpr(expr &exp) override;
 
     const string &getEventName() const override;
 
     const vector<expr> &getExps() const override;
 
+    const string toString() const override;
+
   private:
     string eventName;
+    map<string, string> vars;
     vector<expr> exps;
 };
 

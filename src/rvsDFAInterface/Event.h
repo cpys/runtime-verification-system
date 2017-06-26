@@ -7,10 +7,12 @@
 
 #include <string>
 #include <vector>
+#include <map>
 #include <z3++.h>
 
 using std::string;
 using std::vector;
+using std::map;
 using z3::expr;
 
 class Event {
@@ -25,6 +27,12 @@ class Event {
      * @param 事件名称
      */
     virtual void setEventName(const string &) = 0;
+
+    /*
+     * 设置变量内容
+     * @param 变量内容
+     */
+    virtual void setEventVars(const map<string, string> &) = 0;
 
     /*
      * 添加expr
@@ -43,6 +51,12 @@ class Event {
      * @return 表达式集合
      */
     virtual const vector<expr> &getExps() const = 0;
+
+    /*
+     * 输出事件内容
+     * @return 事件内容字符串
+     */
+    virtual const string toString() const = 0;
 
 };
 

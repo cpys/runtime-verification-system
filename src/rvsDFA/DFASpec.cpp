@@ -3,10 +3,9 @@
 //
 
 #include <DFASpec.h>
+#include <sstream>
 
-void DFASpec::addTempWord(const string &tempWord) {
-    this->tempWord = tempWord;
-}
+using std::ostringstream;
 
 void DFASpec::addConstraint(const string &constraint) {
     this->constraints.push_back(constraint);
@@ -20,20 +19,17 @@ const vector<expr> &DFASpec::getExps() const {
     return this->exps;
 }
 
-const string &DFASpec::getTempWord() const {
-    return this->tempWord;
-}
-
 const vector<string> &DFASpec::getConstraints() const {
     return this->constraints;
 }
 
 const string DFASpec::toString() const {
-    string ans = this->tempWord;
-    ans.push_back(' ');
-    for (auto &constraint : this->constraints) {
-        ans.append(constraint);
-        ans.push_back(' ');
+    ostringstream oss;
+    oss << "{";
+    for (auto it = this->constraints.cbegin(); it != this->constraints.cend(); ++it) {
+        if (it != this->constraints.cbegin()) oss << ", ";
+        oss << "\"" << *it << "\"";
     }
-    return ans;
+    oss << "}";
+    return oss.str();
 }

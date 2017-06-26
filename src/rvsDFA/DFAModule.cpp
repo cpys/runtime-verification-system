@@ -21,10 +21,10 @@ DFAModule::~DFAModule() {
             kv.second = nullptr;
         }
     }
-    for (auto &kv : this->trans) {
-        if (kv.second != nullptr) {
-            delete (kv.second);
-            kv.second = nullptr;
+    for (auto &tran : this->trans) {
+        if (tran != nullptr) {
+            delete(tran);
+            tran = nullptr;
         }
     }
     for (auto &spec : this->specs) {
@@ -33,12 +33,6 @@ DFAModule::~DFAModule() {
             spec = nullptr;
         }
     }
-//    for (auto &event : this->events) {
-//        if (event != nullptr) {
-//            delete (event);
-//            event = nullptr;
-//        }
-//    }
     slv.reset();
 }
 
@@ -92,7 +86,7 @@ void DFAModule::addTran(const string &tranName, int sourceStateNum, int destStat
 
     // 将构造完的转移类添加到源state和module中
     sourceState->addTran(tran);
-    this->trans[tranName] = tran;
+    this->trans.push_back(tran);
 }
 
 void DFAModule::addSpec(const vector<string> &tempConstraints) {
@@ -113,6 +107,7 @@ bool DFAModule::addEvent(const string &eventName, const map<string, string> &var
     // 构造一个Event类对象
     Event *event = new DFAEvent();
     event->setEventName(eventName);
+    event->setEventVars(vars);
 
     for (auto &kv : vars) {
         if (this->varsDecl.find(kv.first) == this->varsDecl.end()) {
@@ -138,7 +133,7 @@ bool DFAModule::addEvent(const string &eventName, const map<string, string> &var
 
     // 每次添加事件时进行轨迹描绘，即进行事件的转移
     if (!this->trace(event)) {
-        cerr << "事件" << eventName << "转移失败!" << endl;
+        cerr << "事件" << event->toString() << "转移失败!" << endl;
         return false;
     }
 
@@ -268,7 +263,7 @@ expr DFAModule::extractExpr(const string &constraint) {
                 // 将当前运算符与栈顶相比较
                 while (!compareOperator(identifier, operatorStack.top())) {
                     // 只要当前运算符比栈顶运算符优先级低就一直退两个表达式和一个运算符进行运算后压栈
-                    const string &operatorTop = operatorStack.top();
+                    const string operatorTop = operatorStack.top() + "";
                     operatorStack.pop();
 
                     expr expr2 = exprStack.top();
@@ -341,7 +336,7 @@ bool DFAModule::trace(Event *event) {
         // 判断当前状态是否能转移到下一状态
         int nextState = currentState->getNextState(event, this->slv);
         if (nextState >= 0) {
-            cout << "事件" << event->getEventName() << "将当前状态" << this->currentStateNum << "转移到了状态" << nextState << endl;
+            cout << "事件" << event->toString() << "将当前状态" << this->currentStateNum << "转移到了状态" << nextState << endl;
 //            this->stateNums = {this->currentStateNum, nextState};
             this->currentStateNum = nextState;
             return true;
@@ -350,16 +345,15 @@ bool DFAModule::trace(Event *event) {
 
     // 当前无状态或者当前有状态却无法转移到下一状态，则从所有转移中搜索
     string eventName = event->getEventName();
-    for (auto &tranMap : this->trans) {
+    for (auto &tran : this->trans) {
         // 首先要事件名匹配
-        if (tranMap.first == eventName) {
-            // 然后判断该转移的源状态是否能经由该转移和该事件转移到下一状态
-            Tran *currentTran = tranMap.second;
-            bool couldTran = currentTran->checkEvent(event, this->slv);
+        if (tran->getName() == eventName) {
+            // 然后判断该转移是否能经由该转移和该事件转移到下一状态
+            bool couldTran = tran->checkEvent(event, this->slv);
             if (couldTran) {
-                cout << "事件" << eventName << "产生了从状态" << currentTran->getSourceStateNum() << "到状态"
-                     << currentTran->getDestStateNum() << "的转移" << endl;
-                this->currentStateNum = currentTran->getDestStateNum();
+                cout << "事件" << event->toString() << "产生了从状态" << tran->getSourceStateNum() << "到状态"
+                     << tran->getDestStateNum() << "的转移" << endl;
+                this->currentStateNum = tran->getDestStateNum();
 //                this->stateNums = {currentTran->getSourceStateNum(), this->currentStateNum};
                 return true;
             }

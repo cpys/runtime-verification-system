@@ -27,33 +27,56 @@ int main() {
     Module* module = new DFAModule();
 
     module->addVarDecl("int", "x");
-    module->addVarDecl("int", "y");
+//    module->addVarDecl("int", "y");
 
-    module->addState(1, {"x > y + 5", "y > 0"});
-    module->addState(2, {"x > 5", "y > 2"});
-    module->addState(3, {"x > 7", "y > 5"});
-    module->addState(4, {"x > 9", "y > 10"});
-    module->addState(5, {"x > 23", "y > 17"});
-    module->addState(6, {"x > 6", "y > 5"});
+//    module->addState(1, {"x > y + 5", "y > 0"});
+//    module->addState(2, {"x > 5", "y > 2"});
+//    module->addState(3, {"x > 7", "y > 5"});
+//    module->addState(4, {"x > 9", "y > 10"});
+//    module->addState(5, {"x > 23", "y > 17"});
+//    module->addState(6, {"x > 6", "y > 5"});
+    module->addState(1, {"x >= 0", "x < 10"});
+    module->addState(2, {"x >= 10", "x < 20"});
+    module->addState(3, {"x >= 20", "x < 30"});
+    module->addState(4, {"x >= 30", "x < 40"});
+    module->addState(5, {"x >= 40", "x < 50"});
 
-    module->addTran("event1", 1, 2, {"y > 2"});
-    module->addTran("event2", 2, 3, {"y > 5"});
-    module->addTran("event3", 3, 4, {"x > 9"});
-    module->addTran("event4", 2, 6, {"y > 5"});
-    module->addTran("event5", 6, 4, {"x > 9"});
-    module->addTran("event6", 4, 5, {"y > 17", "x > 23"});
+//    module->addTran("event1", 1, 2, {"y > 2"});
+//    module->addTran("event2", 2, 3, {"y > 5"});
+//    module->addTran("event3", 3, 4, {"x > 9"});
+//    module->addTran("event4", 2, 6, {"y > 5"});
+//    module->addTran("event5", 6, 4, {"x > 9"});
+//    module->addTran("event6", 4, 5, {"y > 17", "x > 23"});
+    module->addTran("increase", 1, 2, {"x >= 10"});
+    module->addTran("increase", 2, 3, {"x >= 20"});
+    module->addTran("increase", 3, 4, {"x >= 30"});
+    module->addTran("increase", 4, 5, {"x >= 40"});
+    module->addTran("increase", 1, 3, {"x >= 10"});
+    module->addTran("increase", 3, 5, {"x >= 30"});
+    module->addTran("decrease", 3, 1, {"x < 20"});
+    module->addTran("decrease", 5, 3, {"x < 40"});
 
     module->initModule();
 
-    module->addSpec({"x3 > x2"});
-
+//    module->addSpec({"x3 > x2"});
+    module->addSpec({"x3 - x1 <= 20", "x5 - x3 <= 20"});
 
 //    Server(module);
 
     // 模型建立完成后，开始添加事件
-    module->addEvent("event1", {{"x", "6"}});
-    module->addEvent("event5", {{"x", "12"}});
-    module->addEvent("event6", {{"y", "20"}, {"x", "24"}});
+//    module->addEvent("event1", {{"x", "6"}});
+//    module->addEvent("event5", {{"x", "12"}});
+//    module->addEvent("event6", {{"y", "20"}, {"x", "24"}});
+    module->addEvent("increase", {{"x", "12"}});
+    module->addEvent("increase", {{"x", "18"}});
+    module->addEvent("increase", {{"x", "29"}});
+    module->addEvent("decrease", {{"x", "7"}});
+    module->addEvent("increase", {{"x", "26"}});
+    module->addEvent("increase", {{"x", "43"}});
+    module->addEvent("decrease", {{"x", "19"}});
+    module->addEvent("decrease", {{"x", "25"}});
+    module->addEvent("increase", {{"x", "37"}});
+    module->addEvent("increase", {{"x", "49"}});
 
     // 手动输入事件
     while (true) {

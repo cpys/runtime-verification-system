@@ -45,7 +45,8 @@ class DFAModule : public Module {
   private:
     map<string, string> varsDecl;   // 所有变量声明，变量名：类型
     map<int, State *> states;    // 所有状态的声明，编号：状态
-    map<string, Tran *> trans;   // 所有转移的声明，转移名：转移
+//    map<string, Tran *> trans;   // 所有转移的声明，转移名：转移
+    vector<Tran *> trans;   // 所有转移的声明
     vector<Spec *> specs;    // 所有判定逻辑的声明
 //    vector<Event *> events;  // 所有事件的声明
 

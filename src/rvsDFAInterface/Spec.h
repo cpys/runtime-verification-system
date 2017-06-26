@@ -21,12 +21,6 @@ class Spec {
     virtual ~Spec() = default;
 
     /*
-     * 添加时序词
-     * @param 时序词
-     */
-    virtual void addTempWord(const string &) = 0;
-
-    /*
      * 添加字符串约束
      * @param 字符串约束
      */
@@ -43,12 +37,6 @@ class Spec {
      * @return 表达式列表
      */
     virtual const vector<expr> &getExps() const = 0;
-
-    /*
-     * 获取时序词
-     * @return 时序词
-     */
-    virtual const string &getTempWord() const = 0;
 
     /*
      * 获取字符串约束
