@@ -437,25 +437,23 @@ expr DFAModule::calcExpr(expr &expr1, const string &currentOperator, expr &expr2
 }
 
 bool DFAModule::check() {
-    // 先将状态轨迹中的所有表达式添加到solver中
-    this->slv.reset();
-    for (auto &state : this->stateTracks) {
-        for (auto &exp : state->getValuesExps()) {
-            this->slv.add(exp);
-        }
-    }
-
     bool flag = true;
     // 检查每一条spec
     for (auto &spec : this->specs) {
-        solver slvt = this->slv;
+        // 先将状态轨迹中的所有表达式添加到solver中
+        this->slv.reset();
+        for (auto &state : this->stateTracks) {
+            for (auto &exp : state->getValuesExps()) {
+                this->slv.add(exp);
+            }
+        }
 
         // 先添加spec的表达式
         for (auto &exp : spec->getExps()) {
-            slvt.add(exp);
+            this->slv.add(exp);
         }
 
-        z3::check_result result = slvt.check();
+        z3::check_result result = this->slv.check();
         if (result == z3::sat) {
             cout << "验证逻辑" << spec->toString() << "通过验证" << endl;
         }
