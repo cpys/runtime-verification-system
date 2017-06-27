@@ -21,7 +21,7 @@ using std::string;
 
 bool NetLink::init() {
     // 创建客户端原始套接字，协议为NETLINK_TEST
-    if ((sock_fd = socket(PF_NETLINK, SOCK_RAW, NETLINK_TEST)) < 0) {
+    if ((clientSocket = socket(PF_NETLINK, SOCK_RAW, NETLINK_TEST)) < 0) {
         cerr << "can't create netlink socket!" << endl;
         return false;
     }
