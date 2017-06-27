@@ -55,8 +55,8 @@ int main() {
     signal(SIGINT, quit);
 
     // 初始化串口监控
-    serialForwardVM.init();
     serialForwardPort.init();
+    serialForwardVM.init();
 
     // 循环从串口获取消息解析成事件
     using namespace tinyxml2;

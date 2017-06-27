@@ -20,14 +20,16 @@ using std::string;
 using std::vector;
 
 bool SerialForward::init() {
-    if (!setPort()) {
-        cerr << "set " << port << " failed!" << endl;
-        return false;
-    }
     if (!openPort()) {
         cerr << "open " << port << " failed!" << endl;
         return false;
     }
+    cout << "open " << port << " success!" << endl;
+    if (!setPort()) {
+        cerr << "set " << port << " failed!" << endl;
+        return false;
+    }
+    cout << "set " << port << "success!" << endl;
     return true;
 }
 
@@ -159,13 +161,20 @@ string SerialForward::recvMessage() {
 
     int buffer[maxBufSize] = {0};
     int len = read(fd, buffer, maxBufSize);
+    cout << "read " << len << "/" << maxBufSize << ": " << string(std::begin(buffer), std::begin(buffer) + len) << endl;
     return string(std::begin(buffer), std::begin(buffer) + len);
 }
 
 bool SerialForward::sendMessage(const string &message) {
+    cout << message << endl;
 
-    if (write(fd, message.c_str(), message.size()) == message.size()) return true;
+    int len = write(fd, message.c_str(), message.size());
+    if (len == message.size()) {
+        cout << "success write " << len << " bytes" << endl;
+        return true;
+    }
     else {
+        cerr << "write " << len << "/" << message.size() << " bytes" << endl;
         tcflush(fd, TCOFLUSH);
         return false;
     }
