@@ -30,7 +30,7 @@ bool SerialForward::init() {
         cerr << "set " << port << " failed!" << endl;
         return false;
     }
-    cout << "set " << port << "success!" << endl;
+    cout << "set " << port << " success!" << endl;
     return true;
 }
 
@@ -169,7 +169,13 @@ string SerialForward::recvMessage() {
     time.tv_usec = WAIT_USECOND;
 
     int fs_sel = select(fd + 1, &fs_read, NULL, NULL, &time);
-    if (!fs_sel) return "";
+    if (fs_sel < 0) {
+        cerr << "select failed!" << endl;
+        return "";
+    } else if (fs_sel == 0) {
+        cerr << "select timeout!" << endl;
+        return "";
+    }
 
     int len = 0;
     int buffer[maxBufSize] = {0};

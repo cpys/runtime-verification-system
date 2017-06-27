@@ -64,6 +64,7 @@ int main() {
     string message;
     while (true) {
         message = serialForwardVM.recvMessage();
+        if (message == "") continue;
         cout << message << endl;
 
         XMLError xmlError = xmlDocument.Parse(message.c_str());
