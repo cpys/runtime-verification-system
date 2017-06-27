@@ -27,7 +27,7 @@ class SerialForward {
     static const int stopBit = 1;   // 停止位
     static const char parity = 'N';     // 奇偶校验位
     static const int WAIT_SECOND = 0;   // select等待的秒数
-    static const int WAIT_USECOND = 100000; // select等待的毫秒数
+    static const int WAIT_USECOND = 10000; // select等待的毫秒数
     static const int MAX_LINE_SIZE = 40;    // 单行的最大字符数
 
     bool openPort();    // 打开串口

@@ -65,7 +65,7 @@ int main() {
     while (true) {
         message = serialForwardVM.recvMessage();
         if (message == "") continue;
-        cout << message << endl;
+//        cout << message << endl;
 
         XMLError xmlError = xmlDocument.Parse(message.c_str());
         if (xmlError != XML_SUCCESS) {
@@ -84,6 +84,7 @@ int main() {
         if (module->addEvent(eventName, {{eventVar, eventVarValue}})) {
             serialForwardPort.sendMessage(message);
         }
+        cout << endl;
     }
 
     return 0;

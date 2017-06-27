@@ -186,11 +186,11 @@ string SerialForward::recvMessage() {
 }
 
 bool SerialForward::sendMessage(const string &message) {
-    cout << message << endl;
+//    cout << message << endl;
 
     int len = write(fd, message.c_str(), message.size());
     if (len == message.size()) {
-        cout << "success write " << len << " bytes" << endl;
+        cout << "success write " << len << " bytes: " << message << endl;
         return true;
     }
     else {
