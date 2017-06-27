@@ -66,7 +66,7 @@ string NetLink::recvMessage() {
     }
     else {
         string msg(std::begin(buffer.body.data), std::end(buffer.body.data));
-        cout << msg << endl;
+//        cout << msg << endl;
         return msg;
     }
 }

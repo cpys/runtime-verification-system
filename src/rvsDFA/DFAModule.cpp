@@ -134,7 +134,8 @@ bool DFAModule::addEvent(const string &eventName, const map<string, string> &var
 
     // 每次添加事件时进行轨迹描绘，即进行事件的转移
     if (!this->trace(event)) {
-        cerr << "事件" << event->toString() << "转移失败!" << endl;
+//        cerr << "事件" << event->toString() << "转移失败!" << endl;
+        cerr << "转移事件失败:" << event->toString() << endl;
         return false;
     }
 
@@ -452,7 +453,7 @@ bool DFAModule::check() {
         if (result == z3::sat) {
             cout << "验证逻辑" << spec->toString() << "通过验证" << endl;
         }
-        if (result == z3::unsat) {
+        else if (result == z3::unsat) {
             cout << "验证逻辑" << spec->toString() << "验证失败" << endl;
             flag = false;
         }

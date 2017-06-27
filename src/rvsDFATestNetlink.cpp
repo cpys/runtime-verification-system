@@ -66,10 +66,12 @@ int main() {
             cerr << "recv error" << endl;
             break;
         }
+        cout << "捕获网络事件:" << message << endl;
 
         XMLError xmlError = xmlDocument.Parse(message.c_str());
         if (xmlError != XML_SUCCESS) {
-            cerr << "Cannot parse " << message << endl;
+            cerr << "无法解析事件:" << message << endl;
+            cout << "丢弃事件" << endl;
             netLink.sendMessage("", NetLink::NETLINK_TEST_DISCARD);
             continue;
         }
@@ -83,11 +85,14 @@ int main() {
         iss >> eventVar >> eventVarOper >> eventVarValue;
 
         if (module->addEvent(eventName, {{eventVar, eventVarValue}})) {
+            cout << "通过事件" << endl;
             netLink.sendMessage("", NetLink::NETLINK_TEST_ACCPT);
         }
         else {
+            cout << "丢弃事件" << endl;
             netLink.sendMessage("", NetLink::NETLINK_TEST_DISCARD);
         }
+        cout << endl;
     }
 
     return 0;
