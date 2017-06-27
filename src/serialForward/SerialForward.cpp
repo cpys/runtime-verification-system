@@ -12,6 +12,7 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <termios.h>
+#include <sys/select.h>
 
 using std::cout;
 using std::endl;
@@ -159,8 +160,27 @@ bool SerialForward::openPort() {
 string SerialForward::recvMessage() {
     static const int maxBufSize = 1024;
 
+    fd_set fs_read;
+    FD_ZERO(&fs_read);
+    FD_SET(fd, &fs_read);
+
+    struct timeval time;
+    time.tv_sec = WAIT_SECOND;
+    time.tv_usec = WAIT_USECOND;
+
+    int fs_sel = select(fd + 1, &fs_read, NULL, NULL, &time);
+    if (!fs_sel) return "";
+
+    int len = 0;
     int buffer[maxBufSize] = {0};
-    int len = read(fd, buffer, maxBufSize);
+    while (fs_sel) {
+        len += read(fd, buffer + len, maxBufSize - len);
+        if (len > MAX_LINE_SIZE || buffer[len - 1] == '\n') {
+            break;
+        }
+        fs_sel = select(fd + 1, &fs_read, NULL, NULL, &time);
+    }
+
     cout << "read " << len << "/" << maxBufSize << ": " << string(std::begin(buffer), std::begin(buffer) + len) << endl;
     return string(std::begin(buffer), std::begin(buffer) + len);
 }
