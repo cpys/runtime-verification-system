@@ -172,10 +172,10 @@ string SerialForward::recvMessage() {
     if (fs_sel <= 0) return "";
 
     int len = 0;
-    int buffer[maxBufSize] = {0};
+    char buffer[maxBufSize] = {0};
     while (fs_sel > 0) {
         len += read(fd, buffer + len, maxBufSize - len);
-        cout << "middle result: " << len << "/" << maxBufSize << ": " << string(std::begin(buffer), std::begin(buffer) + len) << endl;
+//        cout << "middle result: " << len << "/" << maxBufSize << ": " << string(std::begin(buffer), std::begin(buffer) + len) << endl;
         if (len > MAX_LINE_SIZE || buffer[len - 1] == '\n') {
             break;
         }
