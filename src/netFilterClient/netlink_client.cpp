@@ -100,3 +100,7 @@ int getMessage(char* buffer) {
         return strlen(recv_buf.mymessage.data);
     }
 }
+
+void sendMessage(int flag) {
+    // TODO
+}

@@ -4,8 +4,8 @@ project(runtime-verification-system)
 include_directories(${PROJECT_SOURCE_DIR}/src/rvsDFAInterface)
 include_directories(${PROJECT_SOURCE_DIR}/src/rvsDFA/headers)
 include_directories(${PROJECT_SOURCE_DIR}/src/tinyxml2)
-include_directories(${PROJECT_SOURCE_DIR}/src/serialForward)
-#include_directories(${PROJECT_SOURCE_DIR}/src/netFilterClient)
+#include_directories(${PROJECT_SOURCE_DIR}/src/serialForward)
+include_directories(${PROJECT_SOURCE_DIR}/src/netLink)
 
 link_directories(${PROJECT_SOURCE_DIR}/lib)
 
@@ -16,10 +16,11 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 aux_source_directory(src/XML_PARSER xmlParser)
 aux_source_directory(src/rvsDFA rvsDFA)
 aux_source_directory(src/tinyxml2 tinyxml2)
-aux_source_directory(src/netFilterClient netFilterClient)
+#aux_source_directory(src/netFilterClient netFilterClient)
+aux_source_directory(src/netLink netLink)
 aux_source_directory(src/serialForward serialForward)
 
-set(src ${rvsDFA} ${tinyxml2} ${serialForward} src/rvsDFATestSerial.cpp )
+set(src ${rvsDFA} ${tinyxml2} ${netLink} src/rvsDFATestNetlink.cpp )
 
 add_executable(rvs ${src})
 

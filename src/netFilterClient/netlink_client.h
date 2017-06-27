@@ -22,5 +22,6 @@ struct packet_info{
 void quitNetLink();
 bool netLinkInit();
 int getMessage(char*);
+void sendMessage(int);
 
 #endif //RUNTIME_VERIFICATION_SYSTEM_NETLINK_CLIENT_H
