@@ -81,11 +81,12 @@ bool NetLink::sendMessage(const string &msg, int protocol) {
     netLinkMsgHeader.nlmsg_pid = getpid();   // 设置发送者的PID
 
     if (sendto(clientSocket, &netLinkMsgHeader, netLinkMsgHeader.nlmsg_len, 0, (struct sockaddr*)&serverAddr, sizeof(serverAddr)) < 0) {
-        cerr << "send message " << msg << " to kernel failed!" << endl;
+//        cerr << "send message " << msg << " to kernel failed!" << endl;
+        cerr << "发送消息到内核失败:" << msg << endl;
         return false;
     }
     else {
-        cout << "send message " << msg << " to kernel success!" << endl;
+//        cout << "send message " << msg << " to kernel success!" << endl;
         return true;
     }
 }
