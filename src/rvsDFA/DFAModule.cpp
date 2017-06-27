@@ -13,6 +13,7 @@ using std::cout;
 using std::endl;
 using std::cerr;
 using std::stack;
+using namespace z3;
 
 DFAModule::~DFAModule() {
     for (auto &kv : this->states) {
