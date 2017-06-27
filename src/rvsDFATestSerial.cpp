@@ -65,7 +65,7 @@ int main() {
     while (true) {
         message = serialForwardVM.recvMessage();
         if (message == "") continue;
-//        cout << message << endl;
+        cout << "捕获串口事件:" << message << endl;
 
         XMLError xmlError = xmlDocument.Parse(message.c_str());
         if (xmlError != XML_SUCCESS) {
@@ -82,7 +82,11 @@ int main() {
         iss >> eventVar >> eventVarOper >> eventVarValue;
 
         if (module->addEvent(eventName, {{eventVar, eventVarValue}})) {
+            cout << "通过事件" << endl;
             serialForwardPort.sendMessage(message);
+        }
+        else {
+            cout << "丢弃事件" << endl;
         }
         cout << endl;
     }

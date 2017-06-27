@@ -452,7 +452,7 @@ bool DFAModule::check() {
         if (result == z3::sat) {
             cout << "验证逻辑" << spec->toString() << "通过验证" << endl;
         }
-        if (result == z3::unsat) {
+        else if (result == z3::unsat) {
             cout << "验证逻辑" << spec->toString() << "验证失败" << endl;
             flag = false;
         }

@@ -182,7 +182,7 @@ string SerialForward::recvMessage() {
         fs_sel = select(fd + 1, &fs_read, NULL, NULL, &time);
     }
 
-    cout << "read " << len << "/" << maxBufSize << ": " << string(std::begin(buffer), std::begin(buffer) + len) << endl;
+//    cout << "read " << len << "/" << maxBufSize << ": " << string(std::begin(buffer), std::begin(buffer) + len) << endl;
     return string(std::begin(buffer), std::begin(buffer) + len);
 }
 
@@ -191,11 +191,11 @@ bool SerialForward::sendMessage(const string &message) {
 
     int len = write(fd, message.c_str(), message.size());
     if (len == message.size()) {
-        cout << "success write " << len << " bytes: " << message << endl;
+//        cout << "success write " << len << " bytes: " << message << endl;
         return true;
     }
     else {
-        cerr << "write " << len << "/" << message.size() << " bytes" << endl;
+        cerr << "事件转发不完整，仅发送" << len << "/" << message.size() << " 字节" << endl;
         tcflush(fd, TCOFLUSH);
         return false;
     }
