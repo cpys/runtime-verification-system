@@ -169,17 +169,11 @@ string SerialForward::recvMessage() {
     time.tv_usec = WAIT_USECOND;
 
     int fs_sel = select(fd + 1, &fs_read, NULL, NULL, &time);
-    if (fs_sel < 0) {
-        cerr << "select failed!" << endl;
-        return "";
-    } else if (fs_sel == 0) {
-        cerr << "select timeout!" << endl;
-        return "";
-    }
+    if (fs_sel <= 0) return "";
 
     int len = 0;
     int buffer[maxBufSize] = {0};
-    while (fs_sel) {
+    while (fs_sel > 0) {
         len += read(fd, buffer + len, maxBufSize - len);
         if (len > MAX_LINE_SIZE || buffer[len - 1] == '\n') {
             break;
