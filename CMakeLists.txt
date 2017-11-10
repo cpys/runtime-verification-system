@@ -19,7 +19,7 @@ aux_source_directory(src/tinyxml2 tinyxml2)
 aux_source_directory(src/netFilterClient netFilterClient)
 aux_source_directory(src/serialForward serialForward)
 
-set(src ${rvsDFA} ${tinyxml2} ${serialForward} src/rvsDFATestSerial.cpp )
+set(src ${rvsDFA} ${tinyxml2} src/rvsDFATestSelf.cpp )
 
 add_executable(rvs ${src})
 
