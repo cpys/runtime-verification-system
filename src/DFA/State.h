@@ -1,0 +1,14 @@
+//
+// Created by yingzi on 2017/11/30.
+//
+
+#ifndef RUNTIME_VERIFICATION_SYSTEM_STATE_H
+#define RUNTIME_VERIFICATION_SYSTEM_STATE_H
+
+
+class State {
+
+};
+
+
+#endif //RUNTIME_VERIFICATION_SYSTEM_STATE_H
