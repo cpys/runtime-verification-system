@@ -37,20 +37,23 @@ void Module::addEndState(int stateNum, const vector<string> &stateExprStrList) {
 
 void Module::addState(int stateNum, const vector<string> &stateExprStrList) {
     State *oldState = this->states[stateNum];
-    if (oldState != nullptr && !oldState->isEmpty()) {
+    if (oldState == nullptr) {
+        oldState = new State();
+    }
+    else if (!oldState->isEmpty()) {
         cerr << "已经添加过编号为" << stateNum << "的节点，将覆盖旧节点" << endl;
+        oldState->clear();
     }
 
     // 新建状态机节点，将编号和解析成Z3的表达式添加进节点
     State *newState = oldState;
     newState->setStateNum(stateNum);
-    newState->clearZ3Expr();
-    for (auto &stateExpStr : stateExprStrList) {
-        Z3Expr z3Expr = this->extractZ3Expr(stateExpStr);
+    for (auto &stateExprStr : stateExprStrList) {
+        const Z3Expr z3Expr = this->extractZ3Expr(stateExprStr);
         newState->addZ3Expr(z3Expr);
     }
 
-    // 记录此状态到模型中
+    // 记录或更新此状态到模型中
     this->states[stateNum] = newState;
 }
 

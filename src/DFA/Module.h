@@ -24,6 +24,7 @@ class Module {
   public:
     Module() = default;
     ~Module();
+
     /**
      * 添加变量声明
      * @param varType 变量类型
@@ -103,6 +104,13 @@ class Module {
      * Z3求解器
      */
     solver slv{ctx};
+
+    /**
+     * 将字符串形式的表达式转成Z3表达式
+     * @param exprStr 字符串表达式
+     * @return
+     */
+    const Z3Expr extractZ3Expr(const string &exprStr);
 };
 
 
