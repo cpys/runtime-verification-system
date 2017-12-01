@@ -121,9 +121,41 @@ class Module {
      * 将字符串形式的表达式转成Z3表达式
      * 提取出的变量需要分离出变量名称和序号来获取预定的Z3表达式
      * @param exprStr 字符串表达式
-     * @return
+     * @param serialNum 变量关联的序号，无则输入""
+     * @return 转换成的Z3表达式
      */
-    const Z3Expr extractZ3Expr(const string &exprStr);
+    const Z3Expr extractZ3Expr(const string &exprStr, const string &serialNum);
+    /**
+     * 根据变量名称查找变量类型并生成z3表达式
+     * 变量名称末尾需要包含序号
+     * @param 变量名
+     * @return Z3表达式
+     */
+    const Z3Expr generateVarExp(const string &varName);
+    /**
+     * 根据字符串表示的数字生成数字表达式
+     * @param 数字字符串
+     * @return expr
+     */
+    const Z3Expr generateNumExp(const string &operand);
+    /**
+     * 判断字符是否为合法运算符号
+     * @param c 运算符号
+     * @return 是否合法
+     */
+    bool isOperator(char c);
+    /**
+     * 比较两运算符优先级
+     * @param 运算符1 运算符2
+     * @return 如果运算符1优先级比运算符2优先级高，返回true，否则返回false
+     */
+    bool compareOperator(const string &operator1, const string &operator2);
+    /**
+     * 根据两表达式和一个运算符生成新的表达式
+     * @param 表达式1 运算符 表达式2
+     * @return 运算后的表达式
+     */
+    const Z3Expr calcExpr(const Z3Expr &expr1, const string &currentOperator, const Z3Expr &expr2);
     /**
      * 验证待定的下一个状态和事件上的变量能否通过验证
      * 验证成功则保留新加入的Z3表达式
@@ -133,12 +165,6 @@ class Module {
      * @return 验证结果
      */
     bool verify(const State *nextState, const map<string, string> &varValueMap);
-    /**
-     * 判断字符是否为合法运算符号
-     * @param c 运算符号
-     * @return 是否合法
-     */
-    bool isOperator(char c);
 };
 
 

@@ -13,10 +13,10 @@ using std::stack;
 
 Module::~Module() {
     for (auto &kv : states) {
-        delete(kv.second);
+        delete (kv.second);
     }
     for (auto &tran : trans) {
-        delete(tran);
+        delete (tran);
     }
 }
 
@@ -39,8 +39,7 @@ void Module::addState(int stateNum, const vector<string> &stateExprStrList) {
     State *oldState = this->states[stateNum];
     if (oldState == nullptr) {
         oldState = new State();
-    }
-    else if (!oldState->isEmpty()) {
+    } else if (!oldState->isEmpty()) {
         cerr << "已经添加过编号为" << stateNum << "的节点，将覆盖旧节点" << endl;
         oldState->clear();
     }
@@ -49,7 +48,7 @@ void Module::addState(int stateNum, const vector<string> &stateExprStrList) {
     State *newState = oldState;
     newState->setStateNum(stateNum);
     for (auto &stateExprStr : stateExprStrList) {
-        const Z3Expr z3Expr = this->extractZ3Expr(stateExprStr);
+        const Z3Expr z3Expr = this->extractZ3Expr(stateExprStr, std::to_string(stateNum));
         newState->addZ3Expr(z3Expr);
     }
 
@@ -82,7 +81,7 @@ void Module::addTran(const string &tranName, int sourceStateNum, int destStateNu
 
 void Module::addSpec(const string &specStr) {
     // 生成Z3表达式添加进模型
-    const Z3Expr z3Expr = this->extractZ3Expr(specStr);
+    const Z3Expr z3Expr = this->extractZ3Expr(specStr, "");
     z3ExprVector.push_back(z3Expr);
 }
 
@@ -107,7 +106,8 @@ bool Module::addEvent(const string &eventName, const map<string, string> &varVal
     if (!result) {
         for (auto &tran : trans) {
             nextState = tran->getDestState();
-            if (tran->getSourceState() != currentState && nextState != currentState && tran->getTranName() == eventName) {
+            if (tran->getSourceState() != currentState && nextState != currentState &&
+                tran->getTranName() == eventName) {
                 result = this->verify(nextState, varValueMap);
                 if (result) {
                     break;
@@ -117,11 +117,11 @@ bool Module::addEvent(const string &eventName, const map<string, string> &varVal
     }
 
     if (result) {
-        cout << "事件" << eventName << "导致节点" << currentState->getStateNum() << "转移到节点" << nextState->getStateNum() << endl;
+        cout << "事件" << eventName << "导致节点" << currentState->getStateNum() << "转移到节点" << nextState->getStateNum()
+             << endl;
         currentState = const_cast<State *>(nextState);
         return true;
-    }
-    else {
+    } else {
         return false;
     }
 }
@@ -139,21 +139,21 @@ void Module::initModule() {
     for (auto &varDecl : varsDecl) {
         for (auto &state : states) {
             if (varDecl.second == "int") {
-                z3VarsNumExpr[varDecl.first][state.first] = ctx.int_const((varDecl.first + std::to_string(state.first)).c_str());
-            }
-            else if (varDecl.second == "double") {
-                z3VarsNumExpr[varDecl.first][state.first] = ctx.real_const((varDecl.first + std::to_string(state.first)).c_str());
-            }
-            else if (varDecl.second == "bool") {
-                z3VarsNumExpr[varDecl.first][state.first] = ctx.bool_const((varDecl.first + std::to_string(state.first)).c_str());
+                z3VarsNumExpr[varDecl.first][state.first] = ctx.int_const(
+                        (varDecl.first + std::to_string(state.first)).c_str());
+            } else if (varDecl.second == "double") {
+                z3VarsNumExpr[varDecl.first][state.first] = ctx.real_const(
+                        (varDecl.first + std::to_string(state.first)).c_str());
+            } else if (varDecl.second == "bool") {
+                z3VarsNumExpr[varDecl.first][state.first] = ctx.bool_const(
+                        (varDecl.first + std::to_string(state.first)).c_str());
             }
             cerr << "不支持的变量类型" << varDecl.second << endl;
         }
     }
 }
 
-const Z3Expr Module::extractZ3Expr(const string &exprStr) {
-    // TODO
+const Z3Expr Module::extractZ3Expr(const string &exprStr, const string &serialNum) {
     // 借用运算符栈和运算数栈实现表达式的解析
     stack<string> operatorStack;
     // expr栈用来记录中间表达式结果
@@ -165,14 +165,14 @@ const Z3Expr Module::extractZ3Expr(const string &exprStr) {
     // 遍历字符串表达式
     string identifier;    // 记录标识符
     string currentType;    // 记录当前类型
-    for (auto &c : exprStr) {
+    for (auto c : exprStr) {
         if (currentType.empty()) {
             // 当前无类型，即可从任意符号开始新的标识符
-            if (isalpha(c) != 0 || c == '_') {
+            if (isalpha(c) || c == '_') {
                 // 当前开始一个新的变量
                 currentType = "var";
                 identifier.push_back(c);
-            } else if (isdigit(c) != 0 || c == '.') {
+            } else if (isdigit(c) || c == '.') {
                 // 当前开始一个新的运算数
                 currentType = "operand";
                 identifier.push_back(c);
@@ -180,7 +180,7 @@ const Z3Expr Module::extractZ3Expr(const string &exprStr) {
                 // 当前为运算符
                 currentType = "operator";
                 identifier.push_back(c);
-            } else if (isspace(c) == 0) {
+            } else if (!isspace(c)) {
                 // 其他情况必须为空格
                 cerr << "非法字符" << c << endl;
             }
@@ -190,15 +190,21 @@ const Z3Expr Module::extractZ3Expr(const string &exprStr) {
                 // 继续当前变量
                 identifier.push_back(c);
             } else {
-                // 当前为其他字符则生成完整变量
-
-                // 根据变量名生成变量名expr
-                Z3Expr exp = generateVarExp(identifier);
-                exprStack.push(exp);
+                // 当前为其他字符则生成完整变量并考虑true或false的情况
+                if (identifier == "true") {
+                    exprStack.push(this->ctx.bool_val(true));
+                }
+                else if (identifier == "false") {
+                    exprStack.push(this->ctx.bool_val(false));
+                }
+                else {
+                    // 根据变量名生成变量名expr
+                    exprStack.push(generateVarExp(identifier + serialNum));
+                }
                 identifier.clear();
 
                 if (isspace(c) != 0) {
-                    currentType = "";
+                    currentType.clear();
                 } else if (isOperator(c)) {
                     currentType = "operator";
                     identifier.push_back(c);
@@ -214,8 +220,7 @@ const Z3Expr Module::extractZ3Expr(const string &exprStr) {
             } else {
                 // 当前为其他字符则生成完整运算数
                 // 分析数的类型得到不同的expr
-                Z3Expr exp = generateNumExp(identifier);
-                exprStack.push(exp);
+                exprStack.push(generateNumExp(identifier));
                 identifier.clear();
 
                 if (isspace(c) != 0) {
@@ -269,13 +274,11 @@ const Z3Expr Module::extractZ3Expr(const string &exprStr) {
     // 循环结束后需要手动添加结束符, 即循环退栈
     if (currentType == "var") {
         // 根据变量名生成变量名expr
-        Z3Expr exp = generateVarExp(identifier);
-        exprStack.push(exp);
+        exprStack.push(generateVarExp(identifier + serialNum));
         identifier.clear();
     } else if (currentType == "operand") {
         // 分析数的类型得到不同的expr
-        Z3Expr exp = generateNumExp(identifier);
-        exprStack.push(exp);
+        exprStack.push(generateNumExp(identifier);
         identifier.clear();
     } else if (currentType == "operator") {
         cerr << "表达式" << exprStr << "以运算符结尾，非法！" << endl;
@@ -300,6 +303,76 @@ const Z3Expr Module::extractZ3Expr(const string &exprStr) {
     return exprStack.top();
 }
 
+const Z3Expr Module::generateVarExp(const string &varName) {
+    auto digitIndex = varName.size();
+    for (auto digitBegin = varName.rbegin(); digitBegin != varName.rend(); ++digitBegin, --digitIndex) {
+        if (!isdigit(*digitBegin)) {
+            break;
+        }
+    }
+
+    string varNameWithoutNum = varName.substr(0, digitIndex);
+    string serialNum = varNameWithoutNum.substr(digitIndex);
+
+    if (serialNum.empty() || varsDecl.find(varNameWithoutNum) == varsDecl.end() || states.find(std::stoi(serialNum)) == states.end()) {
+        cerr << "变量" << varName << "未定义或缺少有效的序号后缀" << endl;
+        return this->ctx.bool_val(true);
+    }
+
+    return z3VarsNumExpr[varNameWithoutNum][std::stoi(serialNum)];
+}
+
+const Z3Expr Module::generateNumExp(const string &operand) {
+    if (operand.find('.') >= 0) return this->ctx.real_val(operand.c_str());
+    else return this->ctx.int_val(operand.c_str());
+}
+
+bool Module::isOperator(char c) {
+    static string operatorStr = "+-*/<>!=";
+    return operatorStr.find(c) != string::npos;
+}
+
+bool Module::compareOperator(const string &operator1, const string &operator2) {
+    map<string, int> operatorPriority = {
+            {"$",  0},
+            {"==", 1},
+            {"!=", 1},
+            {"<",  2},
+            {"<=", 2},
+            {">",  2},
+            {">=", 2},
+            {"+",  3},
+            {"-",  3},
+            {"*",  4},
+            {"/",  4}
+    };
+    if (operatorPriority.find(operator1) == operatorPriority.end()) {
+        cerr << "运算符" << operator1 << "不支持" << endl;
+        return false;
+    }
+    if (operatorPriority.find(operator2) == operatorPriority.end()) {
+        cerr << "运算符" << operator2 << "不支持" << endl;
+        return false;
+    }
+    return operatorPriority[operator1] > operatorPriority[operator2];
+}
+
+const Z3Expr Module::calcExpr(const Z3Expr &expr1, const string &currentOperator, const Z3Expr &expr2) {
+    if (currentOperator == "==") return expr1 == expr2;
+    if (currentOperator == "!=") return expr1 != expr2;
+    if (currentOperator == "<") return expr1 < expr2;
+    if (currentOperator == "<=") return expr1 <= expr2;
+    if (currentOperator == ">") return expr1 > expr2;
+    if (currentOperator == ">=") return expr1 >= expr2;
+    if (currentOperator == "+") return expr1 + expr2;
+    if (currentOperator == "-") return expr1 - expr2;
+    if (currentOperator == "*") return expr1 * expr2;
+    if (currentOperator == "/") return expr1 / expr2;
+
+    cerr << "不支持的运算符" << currentOperator << endl;
+    return expr1;
+}
+
 bool Module::verify(const State *nextState, const map<string, string> &varValueMap) {
     slv.push();
     // 先添加下一状态中的全部Z3表达式
@@ -319,25 +392,17 @@ bool Module::verify(const State *nextState, const map<string, string> &varValueM
 
         if (varType == "int") {
             slv.add(z3VarsNumExpr[varValue.first][nextStateNum] == std::stoi(varValue.second));
-        }
-        else if (varType == "double") {
+        } else if (varType == "double") {
             slv.add(z3VarsNumExpr[varValue.first][nextStateNum] == std::stod(varValue.second));
-        }
-        else if (varType == "bool") {
+        } else if (varType == "bool") {
             slv.add(z3VarsNumExpr[varValue.first][nextStateNum] == (varValue.second == "true"));
         }
     }
 
     if (slv.check() == z3::sat) {
         return true;
-    }
-    else {
+    } else {
         slv.pop();
         return false;
     }
-}
-
-bool Module::isOperator(char c) {
-    static string operatorStr = "+-*/<>!=";
-    return operatorStr.find(c) != string::npos;
 }
