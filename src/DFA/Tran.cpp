@@ -16,14 +16,14 @@ void Tran::setDestState(const State *destState) {
     this->destState = destState;
 }
 
-const string &Tran::getTranName() {
+const string &Tran::getTranName() const {
     return tranName;
 }
 
-const State *Tran::getSourceState() {
+const State *Tran::getSourceState() const {
     return sourceState;
 }
 
-const State *Tran::getDestState() {
+const State *Tran::getDestState() const {
     return destState;
 }

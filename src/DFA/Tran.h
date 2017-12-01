@@ -6,7 +6,7 @@
 #define RUNTIME_VERIFICATION_SYSTEM_TRAN_H
 
 #include <string>
-#include "State.h"
+class State;
 
 using std::string;
 
@@ -35,17 +35,17 @@ class Tran {
      * 获取转移名称
      * @return 转移名称
      */
-    const string &getTranName();
+    const string &getTranName() const;
     /**
      * 获取源状态
      * @return 源状态
      */
-    const State *getSourceState();
+    const State *getSourceState() const;
     /**
      * 获取目的状态
      * @return 目的状态
      */
-    const State *getDestState();
+    const State *getDestState() const;
 
   private:
     /**

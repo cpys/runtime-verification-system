@@ -6,10 +6,13 @@
 #define RUNTIME_VERIFICATION_SYSTEM_STATE_H
 
 #include <vector>
+#include <string>
 #include <z3++.h>
-#include "Tran.h"
+
+class Tran;
 
 using std::vector;
+using std::string;
 using Z3Expr = z3::expr;
 
 class State {
@@ -45,32 +48,32 @@ class State {
      * 判断该节点是否为虚拟出的空节点
      * @return 是否为虚拟的空节点
      */
-    bool isEmpty();
+    bool isEmpty() const;
     /**
      * 获取节点编号
      * @return 节点编号
      */
-    int getStateNum();
+    int getStateNum() const;
     /**
      * 判断是否为起始节点
      * @return 是否为起始节点
      */
-    bool isStartState();
+    bool isStartState() const;
     /**
      * 判断是否为终止节点
      * @return 终止节点
      */
-    bool isEndState();
+    bool isEndState() const;
     /**
      * 获取Z3表达式列表
      * @return Z3表达式列表
      */
-    const vector<const Z3Expr> &getZ3ExprList();
+    const vector<Z3Expr> &getZ3ExprList() const;
     /**
      * 获取可到达下一状态的转移关系列表
      * @return 相邻转移列表
      */
-    const vector<const Tran *> &getTranList();
+    const vector<const Tran *> &getTranList() const;
 
     /**
      * 清空节点
@@ -96,11 +99,12 @@ class State {
     /**
      * 节点中的Z3表达式列表
      */
-    vector<const Z3Expr> z3ExprList;
+    vector<Z3Expr> z3ExprList;
     /**
      * 节点的所有相邻出转移
      */
     vector<const Tran *> outTranList;
+
 };
 
 

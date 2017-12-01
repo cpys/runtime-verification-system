@@ -1,11 +1,8 @@
 #include <iostream>
 #include <cstring>
-#include <unistd.h>
 #include <csignal>
 #include <sstream>
 #include <Module.h>
-#include <DFAModule.h>
-#include "tinyxml2/tinyxml2.h"
 
 using std::cout;
 using std::cin;
@@ -14,7 +11,7 @@ using std::endl;
 
 int main() {
     // 建立模型
-    Module* module = new DFAModule();
+    Module* module = new Module();
 
     module->addVarDecl("int", "x");
 
@@ -24,22 +21,19 @@ int main() {
     module->addState(4, {"x >= 30", "x < 40"});
     module->addState(5, {"x >= 40", "x < 50"});
 
-    module->addTran("increase", 1, 2, {"x >= 10"});
-    module->addTran("increase", 2, 3, {"x >= 20"});
-    module->addTran("increase", 3, 4, {"x >= 30"});
-    module->addTran("increase", 4, 5, {"x >= 40"});
-    module->addTran("increase", 1, 3, {"x >= 10"});
-    module->addTran("increase", 2, 4, {"x >= 20"});
-    module->addTran("increase", 3, 5, {"x >= 30"});
-    module->addTran("decrease", 3, 1, {"x < 20"});
-    module->addTran("decrease", 4, 2, {"x < 30"});
-    module->addTran("decrease", 5, 3, {"x < 40"});
+    module->addTran("increase", 1, 2);
+    module->addTran("increase", 2, 3);
+    module->addTran("increase", 3, 4);
+    module->addTran("increase", 4, 5);
+    module->addTran("increase", 1, 3);
+    module->addTran("increase", 2, 4);
+    module->addTran("increase", 3, 5);
+    module->addTran("decrease", 3, 1);
+    module->addTran("decrease", 4, 2);
+    module->addTran("decrease", 5, 3);
 
-    module->initModule();
-
-    module->addSpec({"x3 - x1 <= 20", "x5 - x3 <= 20"});
-
-//    Server(module);
+    module->addSpec("x3 - x1 <= 20");
+    module->addSpec("x5 - x3 <= 20");
 
     // 模型建立完成后，开始添加事件
     module->addEvent("increase", {{"x", "12"}});

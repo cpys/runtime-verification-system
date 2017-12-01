@@ -25,27 +25,27 @@ void State::addTran(const Tran *tran) {
     outTranList.push_back(tran);
 }
 
-bool State::isEmpty() {
+bool State::isEmpty() const {
     return emptyFlag;
 }
 
-int State::getStateNum() {
+int State::getStateNum() const {
     return stateNum;
 }
 
-bool State::isStartState() {
+bool State::isStartState() const {
     return startFlag;
 }
 
-bool State::isEndState() {
+bool State::isEndState() const {
     return endFlag;
 }
 
-const vector<const Z3Expr> &State::getZ3ExprList() {
+const vector<Z3Expr> &State::getZ3ExprList() const {
     return z3ExprList;
 }
 
-const vector<const Tran *> &State::getTranList() {
+const vector<const Tran *> &State::getTranList() const {
     return outTranList;
 }
 

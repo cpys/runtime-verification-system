@@ -9,8 +9,8 @@
 #include <vector>
 #include <map>
 #include <z3++.h>
+
 #include "State.h"
-#include "Spec.h"
 #include "Tran.h"
 
 using std::string;
@@ -19,6 +19,7 @@ using std::map;
 using z3::context;
 using z3::solver;
 using Z3Expr = z3::expr;
+using Z3ExprVector = z3::expr_vector;
 
 class Module {
   public:
@@ -69,6 +70,12 @@ class Module {
      */
     bool addEvent(const string &eventName, const map<string, string> &varValueMap);
 
+    /**
+     * 初始化模型，进行虚拟空节点检查
+     * 初始化变量序号表达式
+     */
+    void initModule();
+
   private:
     /**
      * 所有变量声明，变量名：类型
@@ -85,7 +92,7 @@ class Module {
     /**
      * 所有的判定逻辑
      */
-    vector<Spec *> specs;
+    Z3ExprVector z3ExprVector;
 
     /**
      * 当前状态节点
@@ -104,13 +111,34 @@ class Module {
      * Z3求解器
      */
     solver slv{ctx};
+    /**
+     * 所有的变量序号对应的Z3表达式
+     * 变量名称:(变量序号：Z3表达式)
+     */
+    map<string, map<int, Z3Expr> > z3VarsNumExpr;
 
     /**
      * 将字符串形式的表达式转成Z3表达式
+     * 提取出的变量需要分离出变量名称和序号来获取预定的Z3表达式
      * @param exprStr 字符串表达式
      * @return
      */
     const Z3Expr extractZ3Expr(const string &exprStr);
+    /**
+     * 验证待定的下一个状态和事件上的变量能否通过验证
+     * 验证成功则保留新加入的Z3表达式
+     * 验证失败则删除新加入的Z3表达式
+     * @param nextState 待定的下一个状态
+     * @param varValueMap 事件上的变量名：变量值 映射表
+     * @return 验证结果
+     */
+    bool verify(const State *nextState, const map<string, string> &varValueMap);
+    /**
+     * 判断字符是否为合法运算符号
+     * @param c 运算符号
+     * @return 是否合法
+     */
+    bool isOperator(char c);
 };
 
 
