@@ -52,6 +52,18 @@ class Module {
      * @param stateExprStrList 状态节点上的字符串表达式列表
      */
     void addState(int stateNum, const vector<string> &stateExprStrList);
+
+    /**
+     * 设置节点为起始节点
+     * @param stateNum 节点编号
+     */
+    void setStartState(int stateNum);
+
+    /**
+     * 设置节点为终止节点
+     * @param stateNum 节点编号
+     */
+    void setEndState(int stateNum);
     /**
      * 添加状态节点转移定义
      * @param tranName 转移名称
