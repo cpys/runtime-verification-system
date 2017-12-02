@@ -73,6 +73,7 @@ void Module::setStartState(int stateNum) {
     }
     startState = state;
     startState->setStartFlag(true);
+    cout << "节点" << startState->getStateNum() << "成为了起始节点" << endl;
 }
 
 void Module::setEndState(int stateNum) {
@@ -89,6 +90,7 @@ void Module::setEndState(int stateNum) {
     }
     endState = state;
     endState->setEndFlag(true);
+    cout << "节点" << endState->getStateNum() << "成为了终止节点" << endl;
 }
 
 void Module::addTran(const string &tranName, int sourceStateNum, int destStateNum) {
