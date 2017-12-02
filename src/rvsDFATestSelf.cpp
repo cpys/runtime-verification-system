@@ -15,11 +15,11 @@ int main() {
 
     module->addVarDecl("int", "x");
 
-    module->addState(1, {"x >= 0", "x < 10"});
+    module->addStartState(1, {"x >= 0", "x < 10"});
     module->addState(2, {"x >= 10", "x < 20"});
     module->addState(3, {"x >= 20", "x < 30"});
     module->addState(4, {"x >= 30", "x < 40"});
-    module->addState(5, {"x >= 40", "x < 50"});
+    module->addEndState(5, {"x >= 40", "x < 50"});
 
     module->addTran("increase", 1, 2);
     module->addTran("increase", 2, 3);
@@ -35,7 +35,10 @@ int main() {
     module->addSpec("x3 - x1 <= 20");
     module->addSpec("x5 - x3 <= 20");
 
-    module->initModule();
+    if (!module->initModule()) {
+        cerr << "模型初始化失败！" << endl;
+        return -1;
+    }
 
     // 模型建立完成后，开始添加事件
     module->addEvent("increase", {{"x", "12"}});

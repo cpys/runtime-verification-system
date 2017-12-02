@@ -28,11 +28,11 @@ class State {
     /**
      * 设置该节点为起始节点
      */
-    void setStartFlag();
+    void setStartFlag(bool startFlag);
     /**
      * 设置该节点为终止节点
      */
-    void setEndFlag();
+    void setEndFlag(bool endFlag);
     /**
      * 向节点中添加Z3表达式
      * @param z3Expr

@@ -11,6 +11,10 @@ using std::cerr;
 using std::endl;
 using std::stack;
 
+Module::Module() : slv(ctx) {
+
+}
+
 Module::~Module() {
     for (auto &kv : states) {
         delete (kv.second);
@@ -26,13 +30,30 @@ void Module::addVarDecl(const string &varType, const string &varName) {
 
 void Module::addStartState(int stateNum, const vector<string> &stateExprStrList) {
     this->addState(stateNum, stateExprStrList);
-    this->states[stateNum]->setStartFlag();
-    this->currentState = this->states[stateNum];
+    State *newState = this->states[stateNum];
+    if (hasStartState && newState != startState) {
+        cerr << "已经指定过起始节点" << startState->getStateNum() << "，将更新起始节点" << newState->getStateNum() << endl;
+        startState->setStartFlag(false);
+    }
+    else {
+        hasStartState = true;
+    }
+    startState = newState;
+    startState->setStartFlag(true);
 }
 
 void Module::addEndState(int stateNum, const vector<string> &stateExprStrList) {
     this->addState(stateNum, stateExprStrList);
-    this->states[stateNum]->setEndFlag();
+    State *newState = this->states[stateNum];
+    if (hasEndState && newState != endState) {
+        cerr << "已经指定过终止节点" << endState->getStateNum() << "，将更新终止节点" << newState->getStateNum() << endl;
+        endState->setEndFlag(false);
+    }
+    else {
+        hasEndState = true;
+    }
+    endState = newState;
+    endState->setEndFlag(true);
 }
 
 void Module::addState(int stateNum, const vector<string> &stateExprStrList) {
@@ -82,17 +103,31 @@ void Module::addTran(const string &tranName, int sourceStateNum, int destStateNu
 void Module::addSpec(const string &specStr) {
     // 生成Z3表达式添加进模型
     const Z3Expr z3Expr = this->extractZ3Expr(specStr, "");
-    z3ExprVector.push_back(z3Expr);
+    specZ3ExprVector.push_back(z3Expr);
 }
 
 bool Module::addEvent(const string &eventName, const map<string, string> &varValueMap) {
+    clock_t startTime, endTime;
+
+    startTime = clock();
+
+    // 如果当前是起始节点，则需要添加SPEC表达式
+    if (currentState == startState) {
+        for (auto &spec : specZ3ExprVector) {
+            this->slv.add(spec);
+        }
+    }
+
+    // 初始化当前尝试失败的节点集合
+    currentFailedStates.clear();
+
     // 假设不能转移
     bool result = false;
     const State *nextState = nullptr;
 
     // 先查看当前状态能否转移到相邻状态
-    const vector<const Tran *> outTranList = currentState->getTranList();
-    for (auto &tran : outTranList) {
+    const vector<const Tran *> &outTranList = currentState->getTranList();
+    for (const Tran *tran : outTranList) {
         nextState = tran->getDestState();
         if (tran->getTranName() == eventName) {
             result = this->verify(nextState, varValueMap);
@@ -106,8 +141,7 @@ bool Module::addEvent(const string &eventName, const map<string, string> &varVal
     if (!result) {
         for (auto &tran : trans) {
             nextState = tran->getDestState();
-            if (tran->getSourceState() != currentState && nextState != currentState &&
-                tran->getTranName() == eventName) {
+            if (tran->getSourceState() != currentState && tran->getTranName() == eventName && currentFailedStates.find(nextState) == currentFailedStates.end()) {
                 result = this->verify(nextState, varValueMap);
                 if (result) {
                     break;
@@ -120,37 +154,45 @@ bool Module::addEvent(const string &eventName, const map<string, string> &varVal
         cout << "事件" << eventName << "导致节点" << currentState->getStateNum() << "转移到节点" << nextState->getStateNum()
              << endl;
         currentState = const_cast<State *>(nextState);
+
+        endTime = clock();
+        cout << "add event time:" << (double)(endTime - startTime) / CLOCKS_PER_SEC * 1000 << "ms" << endl;
+
         return true;
     } else {
+        cerr << "事件" << eventName << "无法转移" << endl;
+
+        endTime = clock();
+        cout << "add event time:" << (double)(endTime - startTime) / CLOCKS_PER_SEC * 1000 << "ms" << endl;
+
         return false;
     }
 }
 
-void Module::initModule() {
+bool Module::initModule() {
     int num = 0;
     for (auto &kv : states) {
         if (kv.second->isEmpty()) {
             ++num;
         }
     }
-    cerr << "模型中存在" << num << "个虚拟的空节点" << endl;
-
-    // 初始化变量序号表达式
-    for (auto &varDecl : varsDecl) {
-        for (auto &state : states) {
-            if (varDecl.second == "int") {
-                z3VarsNumExpr[varDecl.first][state.first] = ctx.int_const(
-                        (varDecl.first + std::to_string(state.first)).c_str());
-            } else if (varDecl.second == "double") {
-                z3VarsNumExpr[varDecl.first][state.first] = ctx.real_const(
-                        (varDecl.first + std::to_string(state.first)).c_str());
-            } else if (varDecl.second == "bool") {
-                z3VarsNumExpr[varDecl.first][state.first] = ctx.bool_const(
-                        (varDecl.first + std::to_string(state.first)).c_str());
-            }
-            cerr << "不支持的变量类型" << varDecl.second << endl;
-        }
+    if (num > 0) {
+        cerr << "模型中存在" << num << "个虚拟的空节点" << endl;
+        return false;
     }
+
+    // 判断模型是否有起始和终止节点
+    if (!hasStartState) {
+        cerr << "模型未指定起始节点" << endl;
+        return false;
+    }
+    if (!hasEndState) {
+        cerr << "模型未指定终止节点" << endl;
+        return false;
+    }
+
+    currentState = startState;
+    return true;
 }
 
 const Z3Expr Module::extractZ3Expr(const string &exprStr, const string &serialNum) {
@@ -312,18 +354,36 @@ const Z3Expr Module::generateVarExp(const string &varName) {
     }
 
     string varNameWithoutNum = varName.substr(0, digitIndex);
-    string serialNum = varNameWithoutNum.substr(digitIndex);
+    string serialNum = varName.substr(digitIndex);
 
-    if (serialNum.empty() || varsDecl.find(varNameWithoutNum) == varsDecl.end() || states.find(std::stoi(serialNum)) == states.end()) {
-        cerr << "变量" << varName << "未定义或缺少有效的序号后缀" << endl;
+    if (varsDecl.find(varNameWithoutNum) == varsDecl.end()) {
+        cerr << "变量" << varName << "未定义" << endl;
         return this->ctx.bool_val(true);
     }
 
-    return z3VarsNumExpr[varNameWithoutNum][std::stoi(serialNum)];
+    if (serialNum.empty() || states.find(std::stoi(serialNum)) == states.end()) {
+        cerr << "变量" << varName << "缺少有效的序号后缀" << endl;
+        return this->ctx.bool_val(true);
+    }
+
+    string varType = varsDecl[varNameWithoutNum];
+    if (varType == "int") {
+        return this->ctx.int_const(varName.c_str());
+    }
+    else if (varType == "double") {
+        return this->ctx.real_const(varName.c_str());
+    }
+    else if (varType == "bool") {
+        return this->ctx.bool_const(varName.c_str());
+    }
+    else {
+        cerr << __FUNCTION__ << "中不支持的变量类型，变量为" << varName << endl;
+        return this->ctx.bool_val(true);
+    }
 }
 
 const Z3Expr Module::generateNumExp(const string &operand) {
-    if (operand.find('.') >= 0) return this->ctx.real_val(operand.c_str());
+    if (operand.find('.') != string::npos) return this->ctx.real_val(operand.c_str());
     else return this->ctx.int_val(operand.c_str());
 }
 
@@ -391,11 +451,11 @@ bool Module::verify(const State *nextState, const map<string, string> &varValueM
         }
 
         if (varType == "int") {
-            slv.add(z3VarsNumExpr[varValue.first][nextStateNum] == std::stoi(varValue.second));
+            slv.add(this->ctx.int_const((varValue.first + std::to_string(nextStateNum)).c_str()) == this->ctx.int_val(varValue.second.c_str()));
         } else if (varType == "double") {
-            slv.add(z3VarsNumExpr[varValue.first][nextStateNum] == std::stod(varValue.second));
+            slv.add(this->ctx.real_const((varValue.first + std::to_string(nextStateNum)).c_str()) == this->ctx.real_val(varValue.second.c_str()));
         } else if (varType == "bool") {
-            slv.add(z3VarsNumExpr[varValue.first][nextStateNum] == (varValue.second == "true"));
+            slv.add(this->ctx.bool_const((varValue.first + std::to_string(nextStateNum)).c_str()) == this->ctx.bool_val(varValue.second == "true"));
         }
     }
 
@@ -403,6 +463,7 @@ bool Module::verify(const State *nextState, const map<string, string> &varValueM
         return true;
     } else {
         slv.pop();
+        currentFailedStates.insert(nextState);
         return false;
     }
 }

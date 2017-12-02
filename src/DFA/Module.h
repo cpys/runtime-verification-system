@@ -8,6 +8,7 @@
 #include <string>
 #include <vector>
 #include <map>
+#include <set>
 #include <z3++.h>
 
 #include "State.h"
@@ -16,14 +17,14 @@
 using std::string;
 using std::vector;
 using std::map;
+using std::set;
 using z3::context;
 using z3::solver;
 using Z3Expr = z3::expr;
-using Z3ExprVector = z3::expr_vector;
 
 class Module {
   public:
-    Module() = default;
+    Module();
     ~Module();
 
     /**
@@ -72,9 +73,11 @@ class Module {
 
     /**
      * 初始化模型，进行虚拟空节点检查
-     * 初始化变量序号表达式
+     * 对模型是否输入了起始节点和终止节点进行检查
+     * 指定当前节点为起始节点
+     * @return 初始化结果
      */
-    void initModule();
+    bool initModule();
 
   private:
     /**
@@ -86,13 +89,29 @@ class Module {
      */
     map<int, State *> states;
     /**
+     * 是否输入了起始节点
+     */
+    bool hasStartState = false;
+    /**
+     * 是否输入了终止节点
+     */
+    bool hasEndState = false;
+    /**
+     * 模型的起始节点
+     */
+    State *startState = nullptr;
+    /**
+     * 模型的终止节点
+     */
+    State *endState = nullptr;
+    /**
      * 所有的转移
      */
     vector<Tran *> trans;
     /**
      * 所有的判定逻辑
      */
-    Z3ExprVector z3ExprVector;
+    vector<Z3Expr> specZ3ExprVector;
 
     /**
      * 当前状态节点
@@ -102,6 +121,10 @@ class Module {
      * 状态节点轨迹
      */
     vector<State *> stateTrace;
+    /**
+     * 记录当前事件尝试转移过程中失败的节点
+     */
+    set<const State *> currentFailedStates;
 
     /**
      * Z3求解器的上下文
@@ -110,12 +133,12 @@ class Module {
     /**
      * Z3求解器
      */
-    solver slv{ctx};
-    /**
-     * 所有的变量序号对应的Z3表达式
-     * 变量名称:(变量序号：Z3表达式)
-     */
-    map<string, map<int, Z3Expr> > z3VarsNumExpr;
+    solver slv;
+//    /**
+//     * 所有的变量序号对应的Z3表达式
+//     * 变量名称:(变量序号：Z3表达式)
+//     */
+//    map<string, map<int, Z3Expr> > z3VarsNumExpr;
 
     /**
      * 将字符串形式的表达式转成Z3表达式

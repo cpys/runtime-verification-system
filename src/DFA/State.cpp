@@ -2,19 +2,21 @@
 // Created by yingzi on 2017/11/30.
 //
 
+#include <iostream>
 #include "State.h"
+using namespace std;
 
 void State::setStateNum(int stateNum) {
     this->stateNum = stateNum;
     this->emptyFlag = false;
 }
 
-void State::setStartFlag() {
-    this->startFlag = true;
+void State::setStartFlag(bool startFlag) {
+    this->startFlag = startFlag;
 }
 
-void State::setEndFlag() {
-    this->endFlag = true;
+void State::setEndFlag(bool endFlag) {
+    this->endFlag = endFlag;
 }
 
 void State::addZ3Expr(const Z3Expr &z3Expr) {
