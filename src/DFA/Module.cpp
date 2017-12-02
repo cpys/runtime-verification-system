@@ -118,6 +118,8 @@ bool Module::addEvent(const string &eventName, const map<string, string> &varVal
         }
     }
 
+    // TODO 当前是终止节点的操作
+
     // 初始化当前尝试失败的节点集合
     currentFailedStates.clear();
 
