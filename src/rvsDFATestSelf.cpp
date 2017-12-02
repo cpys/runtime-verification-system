@@ -35,6 +35,8 @@ int main() {
     module->addSpec("x3 - x1 <= 20");
     module->addSpec("x5 - x3 <= 20");
 
+    module->initModule();
+
     // 模型建立完成后，开始添加事件
     module->addEvent("increase", {{"x", "12"}});
     module->addEvent("increase", {{"x", "18"}});

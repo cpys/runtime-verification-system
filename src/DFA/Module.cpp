@@ -278,7 +278,7 @@ const Z3Expr Module::extractZ3Expr(const string &exprStr, const string &serialNu
         identifier.clear();
     } else if (currentType == "operand") {
         // 分析数的类型得到不同的expr
-        exprStack.push(generateNumExp(identifier);
+        exprStack.push(generateNumExp(identifier));
         identifier.clear();
     } else if (currentType == "operator") {
         cerr << "表达式" << exprStr << "以运算符结尾，非法！" << endl;
