@@ -159,13 +159,15 @@ bool Module::addEvent(const string &eventName, const map<string, string> &varVal
 
         endTime = clock();
         cout << "add event time:" << (double)(endTime - startTime) / CLOCKS_PER_SEC * 1000 << "ms" << endl;
+        cout << "startTime:" << startTime << ",endTime:" << endTime << endl;
 
         return true;
     } else {
-        cerr << "事件" << eventName << "无法转移" << endl;
+        cout << "事件" << eventName << "无法转移" << endl;
 
         endTime = clock();
         cout << "add event time:" << (double)(endTime - startTime) / CLOCKS_PER_SEC * 1000 << "ms" << endl;
+        cout << "startTime:" << startTime << ",endTime:" << endTime << endl;
 
         return false;
     }
@@ -441,6 +443,7 @@ bool Module::verify(const State *nextState, const map<string, string> &varValueM
     const vector<Z3Expr> &stateZ3ExprList = nextState->getZ3ExprList();
     for (auto &z3Expr : stateZ3ExprList) {
         slv.add(z3Expr);
+        cout << "添加下一状态中的表达式" << z3Expr << endl;
     }
 
     // 再将事件上的变量全部构造成Z3表达式添加进去
@@ -453,7 +456,10 @@ bool Module::verify(const State *nextState, const map<string, string> &varValueM
         }
 
         if (varType == "int") {
-            slv.add(this->ctx.int_const((varValue.first + std::to_string(nextStateNum)).c_str()) == this->ctx.int_val(varValue.second.c_str()));
+//            slv.add(this->ctx.int_const((varValue.first + std::to_string(nextStateNum)).c_str()) == this->ctx.int_val(varValue.second.c_str()));
+            Z3Expr z3Expr = this->ctx.int_const((varValue.first + std::to_string(nextStateNum)).c_str()) == this->ctx.int_val(varValue.second.c_str());
+            slv.add(z3Expr);
+            cout << "添加事件上的表达式" << z3Expr << endl;
         } else if (varType == "double") {
             slv.add(this->ctx.real_const((varValue.first + std::to_string(nextStateNum)).c_str()) == this->ctx.real_val(varValue.second.c_str()));
         } else if (varType == "bool") {
@@ -461,9 +467,18 @@ bool Module::verify(const State *nextState, const map<string, string> &varValueM
         }
     }
 
+    clock_t startTime, endTime;
+    startTime = clock();
+
     if (slv.check() == z3::sat) {
+        endTime = clock();
+        cout << "check time:" << (double)(endTime - startTime) / CLOCKS_PER_SEC * 1000 << "ms" << endl;
+        cout << "startTime:" << startTime << ",endTime:" << endTime << endl;
         return true;
     } else {
+        endTime = clock();
+        cout << "check time:" << (double)(endTime - startTime) / CLOCKS_PER_SEC * 1000 << "ms" << endl;
+        cout << "startTime:" << startTime << ",endTime:" << endTime << endl;
         slv.pop();
         currentFailedStates.insert(nextState);
         return false;

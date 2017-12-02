@@ -10,6 +10,7 @@
 #include <map>
 #include <set>
 #include <z3++.h>
+#include <ctime>
 
 #include "State.h"
 #include "Tran.h"
