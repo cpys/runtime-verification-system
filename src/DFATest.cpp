@@ -11,46 +11,46 @@ using std::endl;
 
 int main() {
     // 建立模型
-    auto module = new Model();
+    auto model = new Model();
 
-    module->addVarDecl("int", "x");
+    model->addVarDecl("int", "x");
 
-    module->addStartState(1, {"x >= 0", "x < 10"});
-    module->addState(2, {"x >= 10", "x < 20"});
-    module->addState(3, {"x >= 20", "x < 30"});
-    module->addState(4, {"x >= 30", "x < 40"});
-    module->addEndState(5, {"x >= 40", "x < 50"});
+    model->addStartState(1, {"x >= 0", "x < 10"});
+    model->addState(2, {"x >= 10", "x < 20"});
+    model->addState(3, {"x >= 20", "x < 30"});
+    model->addState(4, {"x >= 30", "x < 40"});
+    model->addEndState(5, {"x >= 40", "x < 50"});
 
-    module->addTran("increase", 1, 2);
-    module->addTran("increase", 2, 3);
-    module->addTran("increase", 3, 4);
-    module->addTran("increase", 4, 5);
-    module->addTran("increase", 1, 3);
-    module->addTran("increase", 2, 4);
-    module->addTran("increase", 3, 5);
-    module->addTran("decrease", 3, 1);
-    module->addTran("decrease", 4, 2);
-    module->addTran("decrease", 5, 3);
+    model->addTran("increase", 1, 2);
+    model->addTran("increase", 2, 3);
+    model->addTran("increase", 3, 4);
+    model->addTran("increase", 4, 5);
+    model->addTran("increase", 1, 3);
+    model->addTran("increase", 2, 4);
+    model->addTran("increase", 3, 5);
+    model->addTran("decrease", 3, 1);
+    model->addTran("decrease", 4, 2);
+    model->addTran("decrease", 5, 3);
 
-    module->addSpec("x3 - x1 <= 20");
-    module->addSpec("x5 - x3 <= 20");
+    model->addSpec("x3 - x1 <= 20");
+    model->addSpec("x5 - x3 <= 20");
 
-    if (!module->initModel()) {
+    if (!model->initModel()) {
         cerr << "模型初始化失败！" << endl;
         return -1;
     }
 
     // 模型建立完成后，开始添加事件
-    module->addEvent("increase", {{"x", "12"}});
-    module->addEvent("increase", {{"x", "18"}});
-    module->addEvent("increase", {{"x", "29"}});
-    module->addEvent("decrease", {{"x", "7"}});
-    module->addEvent("increase", {{"x", "26"}});
-    module->addEvent("increase", {{"x", "43"}});
-    module->addEvent("decrease", {{"x", "19"}});
-    module->addEvent("decrease", {{"x", "25"}});
-    module->addEvent("increase", {{"x", "37"}});
-    module->addEvent("increase", {{"x", "49"}});
+    model->addEvent("increase", {{"x", "12"}});
+    model->addEvent("increase", {{"x", "18"}});
+    model->addEvent("increase", {{"x", "29"}});
+    model->addEvent("decrease", {{"x", "7"}});
+    model->addEvent("increase", {{"x", "26"}});
+    model->addEvent("increase", {{"x", "43"}});
+    model->addEvent("decrease", {{"x", "19"}});
+    model->addEvent("decrease", {{"x", "25"}});
+    model->addEvent("increase", {{"x", "37"}});
+    model->addEvent("increase", {{"x", "49"}});
 
 //    // 手动输入事件
 //    while (true) {
@@ -67,7 +67,7 @@ int main() {
 //            vars[varName] = varValue;
 //            cin >> varName;
 //        }
-//        module->addEvent(eventName, vars);
+//        model->addEvent(eventName, vars);
 //    }
 
     return 0;
