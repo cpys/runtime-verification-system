@@ -2,7 +2,7 @@
 #include <cstring>
 #include <csignal>
 #include <sstream>
-#include "Module.h"
+#include "Model.h"
 
 using std::cout;
 using std::cin;
@@ -11,7 +11,7 @@ using std::endl;
 
 int main() {
     // 建立模型
-    auto module = new Module();
+    auto module = new Model();
 
     module->addVarDecl("int", "x");
 
@@ -35,7 +35,7 @@ int main() {
     module->addSpec("x3 - x1 <= 20");
     module->addSpec("x5 - x3 <= 20");
 
-    if (!module->initModule()) {
+    if (!module->initModel()) {
         cerr << "模型初始化失败！" << endl;
         return -1;
     }
