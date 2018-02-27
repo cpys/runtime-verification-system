@@ -2,20 +2,16 @@
 // Created by yingzi on 2017/11/30.
 //
 
-#include <iostream>
 #include <stack>
-#include "Module.h"
-
-using std::cout;
-using std::cerr;
-using std::endl;
+#include <Event.h>
+#include <Model.h>
 using std::stack;
 
-Module::Module() : slv(ctx) {
+Model::Model() : slv(ctx), slvNegative(ctx) {
 
 }
 
-Module::~Module() {
+Model::~Model() {
     for (auto &kv : states) {
         delete (kv.second);
     }
@@ -24,44 +20,26 @@ Module::~Module() {
     }
 }
 
-void Module::addVarDecl(const string &varType, const string &varName) {
+void Model::addVarDecl(const string &varType, const string &varName) {
     this->varsDecl[varName] = varType;
 }
 
-void Module::addStartState(int stateNum, const vector<string> &stateExprStrList) {
+void Model::addStartState(int stateNum, const vector<string> &stateExprStrList) {
     this->addState(stateNum, stateExprStrList);
-    State *newState = this->states[stateNum];
-    if (hasStartState && newState != startState) {
-        cerr << "已经指定过起始节点" << startState->getStateNum() << "，将更新起始节点" << newState->getStateNum() << endl;
-        startState->setStartFlag(false);
-    }
-    else {
-        hasStartState = true;
-    }
-    startState = newState;
-    startState->setStartFlag(true);
+    this->setStartState(stateNum);
 }
 
-void Module::addEndState(int stateNum, const vector<string> &stateExprStrList) {
+void Model::addEndState(int stateNum, const vector<string> &stateExprStrList) {
     this->addState(stateNum, stateExprStrList);
-    State *newState = this->states[stateNum];
-    if (hasEndState && newState != endState) {
-        cerr << "已经指定过终止节点" << endState->getStateNum() << "，将更新终止节点" << newState->getStateNum() << endl;
-        endState->setEndFlag(false);
-    }
-    else {
-        hasEndState = true;
-    }
-    endState = newState;
-    endState->setEndFlag(true);
+    this->setEndState(stateNum);
 }
 
-void Module::addState(int stateNum, const vector<string> &stateExprStrList) {
+void Model::addState(int stateNum, const vector<string> &stateExprStrList) {
     State *oldState = this->states[stateNum];
     if (oldState == nullptr) {
         oldState = new State();
     } else if (!oldState->isEmpty()) {
-        cerr << "已经添加过编号为" << stateNum << "的节点，将覆盖旧节点" << endl;
+        logger->warning("已经添加过编号为%d的节点，将覆盖旧节点", stateNum);
         oldState->clear();
     }
 
@@ -77,7 +55,41 @@ void Module::addState(int stateNum, const vector<string> &stateExprStrList) {
     this->states[stateNum] = newState;
 }
 
-void Module::addTran(const string &tranName, int sourceStateNum, int destStateNum) {
+void Model::setStartState(int stateNum) {
+    State *state = this->states[stateNum];
+    if (state == nullptr) {
+        logger->error("未找到节点%d", stateNum);
+        return;
+    }
+    if (hasStartState && state != startState) {
+        logger->warning("已经指定过起始节点%d，将更新起始节点%d", startState->getStateNum(), state->getStateNum());
+        startState->setStartFlag(false);
+    } else {
+        hasStartState = true;
+    }
+    startState = state;
+    startState->setStartFlag(true);
+    logger->info("节点%d成为了起始节点", startState->getStateNum());
+}
+
+void Model::setEndState(int stateNum) {
+    State *state = this->states[stateNum];
+    if (state == nullptr) {
+        logger->error("未找到节点%d", stateNum);
+        return;
+    }
+    if (hasEndState && state != endState) {
+        logger->warning("已经指定过终止节点%d，将更新终止节点%d", endState->getStateNum(), state->getStateNum());
+        endState->setEndFlag(false);
+    } else {
+        hasEndState = true;
+    }
+    endState = state;
+    endState->setEndFlag(true);
+    logger->info("节点%d成为了终止节点", endState->getStateNum());
+}
+
+void Model::addTran(const string &tranName, int sourceStateNum, int destStateNum) {
     // 如果源节点和目标节点尚不存在，则先创建相应状态节点
     State *sourceState = this->states[sourceStateNum];
     if (sourceState == nullptr) {
@@ -100,40 +112,61 @@ void Module::addTran(const string &tranName, int sourceStateNum, int destStateNu
     this->trans.push_back(tran);
 }
 
-void Module::addSpec(const string &specStr) {
+void Model::addSpec(const string &specStr) {
     // 生成Z3表达式添加进模型
     const Z3Expr z3Expr = this->extractZ3Expr(specStr, "");
     specZ3ExprVector.push_back(z3Expr);
 }
 
-bool Module::addEvent(const string &eventName, const map<string, string> &varValueMap) {
-    clock_t startTime, endTime;
+EventVerifyResultEnum Model::verifyEvent(const Event *event) {
+    if (event == nullptr) return EventVerifyResultEnum::refuse;
+    logger->debug("当前节点为节点%d，开始尝试转移", currentState->getStateNum());
 
-    startTime = clock();
-
-    // 如果当前是起始节点，则需要添加SPEC表达式
+    // 如果当前是起始节点，则需要添加起始节点的表达式和SPEC表达式
     if (currentState == startState) {
+        for (auto &z3Expr : startState->getZ3ExprList()) {
+            this->slv.add(z3Expr);
+            logger->debug("添加起始节点的表达式%s", z3Expr);;
+        }
         for (auto &spec : specZ3ExprVector) {
             this->slv.add(spec);
+            logger->debug("添加轨迹验证表达式%s", spec);
         }
+        // 始终保留起始节点的表达式和SPEC表达式，后续添加的表达式在到达终止节点继续转移时弹出
+        this->slv.push();
+
+        // 初始化状态轨迹
+        this->stateTrace.clear();
+        this->stateTrace.push_back(startState);
     }
 
-    // TODO 当前是终止节点的操作
+    // 如果当前是终止节点，则调整至起始节点开始转移
+    if (currentState == endState) {
+        currentState = startState;
+        this->slv.pop();
+        this->slv.push();
+
+        // 重新初始化状态轨迹
+        this->stateTrace.clear();
+        this->stateTrace.push_back(startState);
+        logger->info("从终止节点%d调整至起始节点%d开始转移", endState->getStateNum(),  startState->getStateNum());
+    }
 
     // 初始化当前尝试失败的节点集合
     currentFailedStates.clear();
 
     // 假设不能转移
-    bool result = false;
+    EventVerifyResultEnum result = EventVerifyResultEnum::refuse;
     const State *nextState = nullptr;
 
     // 先查看当前状态能否转移到相邻状态
     const vector<const Tran *> &outTranList = currentState->getTranList();
     for (const Tran *tran : outTranList) {
         nextState = tran->getDestState();
-        if (tran->getTranName() == eventName) {
-            result = this->verify(nextState, varValueMap);
-            if (result) {
+        if (tran->getTranName() == event->getEventName()) {
+            // 取最小值表示取更好的结果
+            result = std::min(result, this->verify(nextState, event->getVarValueMap()));
+            if (result == EventVerifyResultEnum::accept) {
                 break;
             }
         }
@@ -143,37 +176,33 @@ bool Module::addEvent(const string &eventName, const map<string, string> &varVal
     if (!result) {
         for (auto &tran : trans) {
             nextState = tran->getDestState();
-            if (tran->getSourceState() != currentState && tran->getTranName() == eventName && currentFailedStates.find(nextState) == currentFailedStates.end()) {
-                result = this->verify(nextState, varValueMap);
-                if (result) {
+            if (tran->getSourceState() != currentState
+                && tran->getTranName() == event->getEventName()
+                && currentFailedStates.find(nextState) == currentFailedStates.end()) {
+                result = std::min(result, this->verify(nextState, event->getVarValueMap()));
+                if (result == EventVerifyResultEnum::accept) {
                     break;
                 }
             }
         }
     }
 
-    if (result) {
-        cout << "事件" << eventName << "导致节点" << currentState->getStateNum() << "转移到节点" << nextState->getStateNum()
-             << endl;
+    if (result == EventVerifyResultEnum::accept) {
+        logger->info("事件\"%s\"导致节点%d转移到节点%d", event->getEventName().c_str(), currentState->getStateNum(), nextState->getStateNum());
         currentState = const_cast<State *>(nextState);
-
-        endTime = clock();
-        cout << "add event time:" << (double)(endTime - startTime) / CLOCKS_PER_SEC * 1000 << "ms" << endl;
-        cout << "startTime:" << startTime << ",endTime:" << endTime << endl;
-
-        return true;
-    } else {
-        cout << "事件" << eventName << "无法转移" << endl;
-
-        endTime = clock();
-        cout << "add event time:" << (double)(endTime - startTime) / CLOCKS_PER_SEC * 1000 << "ms" << endl;
-        cout << "startTime:" << startTime << ",endTime:" << endTime << endl;
-
-        return false;
+        this->stateTrace.push_back(currentState);
     }
+    else if (result == EventVerifyResultEnum::undetermined) {
+        logger->info("事件\"%s\"转移结果待定", event->getEventName().c_str());
+    }
+    else if (result == EventVerifyResultEnum::refuse){
+        logger->warning("事件\"%s\"无法转移", event->getEventName().c_str());
+    }
+
+    return result;
 }
 
-bool Module::initModule() {
+bool Model::initModel() {
     int num = 0;
     for (auto &kv : states) {
         if (kv.second->isEmpty()) {
@@ -181,17 +210,17 @@ bool Module::initModule() {
         }
     }
     if (num > 0) {
-        cerr << "模型中存在" << num << "个虚拟的空节点" << endl;
+        logger->error("模型中存在%d个虚拟的空节点", num);
         return false;
     }
 
     // 判断模型是否有起始和终止节点
     if (!hasStartState) {
-        cerr << "模型未指定起始节点" << endl;
+        logger->error("模型未指定起始节点");
         return false;
     }
     if (!hasEndState) {
-        cerr << "模型未指定终止节点" << endl;
+        logger->error("模型未指定终止节点");
         return false;
     }
 
@@ -199,7 +228,7 @@ bool Module::initModule() {
     return true;
 }
 
-const Z3Expr Module::extractZ3Expr(const string &exprStr, const string &serialNum) {
+const Z3Expr Model::extractZ3Expr(const string &exprStr, const string &serialNum) {
     // 借用运算符栈和运算数栈实现表达式的解析
     stack<string> operatorStack;
     // expr栈用来记录中间表达式结果
@@ -228,7 +257,7 @@ const Z3Expr Module::extractZ3Expr(const string &exprStr, const string &serialNu
                 identifier.push_back(c);
             } else if (!isspace(c)) {
                 // 其他情况必须为空格
-                cerr << "非法字符" << c << endl;
+                logger->error("表达式中出现非法字符%c", c);
             }
         } else if (currentType == "var") {
             // 当前已处于变量状态
@@ -255,7 +284,7 @@ const Z3Expr Module::extractZ3Expr(const string &exprStr, const string &serialNu
                     currentType = "operator";
                     identifier.push_back(c);
                 } else {
-                    cerr << "不合法的标识符" << identifier + c << endl;
+                    logger->error("表达式中出现不合法的标识符%s%c", identifier.c_str(), c);
                 }
             }
         } else if (currentType == "operand") {
@@ -275,7 +304,7 @@ const Z3Expr Module::extractZ3Expr(const string &exprStr, const string &serialNu
                     currentType = "operator";
                     identifier.push_back(c);
                 } else {
-                    cerr << "非法的标识符" << identifier + c << endl;
+                    logger->error("表达式中出现不合法的标识符%s%c", identifier.c_str(), c);
                 }
             }
         } else if (currentType == "operator") {
@@ -311,7 +340,7 @@ const Z3Expr Module::extractZ3Expr(const string &exprStr, const string &serialNu
                 } else if (isspace(c) != 0) {
                     currentType = "";
                 } else {
-                    cerr << "非法字符" << c << endl;
+                    logger->error("表达式中出现非法字符%c", c);
                 }
             }
         }
@@ -327,7 +356,7 @@ const Z3Expr Module::extractZ3Expr(const string &exprStr, const string &serialNu
         exprStack.push(generateNumExp(identifier));
         identifier.clear();
     } else if (currentType == "operator") {
-        cerr << "表达式" << exprStr << "以运算符结尾，非法！" << endl;
+        logger->error("表达式\"%s\"以运算符结尾，非法！", exprStr.c_str());
     }
 
     while (operatorStack.size() > 1) {
@@ -335,7 +364,7 @@ const Z3Expr Module::extractZ3Expr(const string &exprStr, const string &serialNu
         operatorStack.pop();
 
         if (exprStack.size() < 2) {
-            cerr << "运算数或变量不足，表达式" << exprStr << "不合法" << endl;
+            logger->error("运算数或变量不足，表达式\"%s\"不合法", exprStr.c_str());
             break;
         }
         Z3Expr expr2 = exprStack.top();
@@ -349,7 +378,7 @@ const Z3Expr Module::extractZ3Expr(const string &exprStr, const string &serialNu
     return exprStack.top();
 }
 
-const Z3Expr Module::generateVarExp(const string &varName) {
+const Z3Expr Model::generateVarExp(const string &varName) {
     auto digitIndex = varName.size();
     for (auto digitBegin = varName.rbegin(); digitBegin != varName.rend(); ++digitBegin, --digitIndex) {
         if (!isdigit(*digitBegin)) {
@@ -361,12 +390,12 @@ const Z3Expr Module::generateVarExp(const string &varName) {
     string serialNum = varName.substr(digitIndex);
 
     if (varsDecl.find(varNameWithoutNum) == varsDecl.end()) {
-        cerr << "变量" << varName << "未定义" << endl;
+        logger->error("变量\"%s\"未定义", varName.c_str());
         return this->ctx.bool_val(true);
     }
 
     if (serialNum.empty() || states.find(std::stoi(serialNum)) == states.end()) {
-        cerr << "变量" << varName << "缺少有效的序号后缀" << endl;
+        logger->error("变量\"%s\"缺少有效的序号后缀", varName.c_str());
         return this->ctx.bool_val(true);
     }
 
@@ -381,22 +410,22 @@ const Z3Expr Module::generateVarExp(const string &varName) {
         return this->ctx.bool_const(varName.c_str());
     }
     else {
-        cerr << __FUNCTION__ << "中不支持的变量类型，变量为" << varName << endl;
+        logger->error("不支持的变量类型，变量为%s", varName.c_str());
         return this->ctx.bool_val(true);
     }
 }
 
-const Z3Expr Module::generateNumExp(const string &operand) {
+const Z3Expr Model::generateNumExp(const string &operand) {
     if (operand.find('.') != string::npos) return this->ctx.real_val(operand.c_str());
     else return this->ctx.int_val(operand.c_str());
 }
 
-bool Module::isOperator(char c) {
+bool Model::isOperator(char c) {
     static string operatorStr = "+-*/<>!=";
     return operatorStr.find(c) != string::npos;
 }
 
-bool Module::compareOperator(const string &operator1, const string &operator2) {
+bool Model::compareOperator(const string &operator1, const string &operator2) {
     map<string, int> operatorPriority = {
             {"$",  0},
             {"==", 1},
@@ -411,17 +440,17 @@ bool Module::compareOperator(const string &operator1, const string &operator2) {
             {"/",  4}
     };
     if (operatorPriority.find(operator1) == operatorPriority.end()) {
-        cerr << "运算符" << operator1 << "不支持" << endl;
+        logger->error("运算符\"%s\"不支持", operator1.c_str());
         return false;
     }
     if (operatorPriority.find(operator2) == operatorPriority.end()) {
-        cerr << "运算符" << operator2 << "不支持" << endl;
+        logger->error("运算符\"%s\"不支持", operator2.c_str());
         return false;
     }
     return operatorPriority[operator1] > operatorPriority[operator2];
 }
 
-const Z3Expr Module::calcExpr(const Z3Expr &expr1, const string &currentOperator, const Z3Expr &expr2) {
+const Z3Expr Model::calcExpr(const Z3Expr &expr1, const string &currentOperator, const Z3Expr &expr2) {
     if (currentOperator == "==") return expr1 == expr2;
     if (currentOperator == "!=") return expr1 != expr2;
     if (currentOperator == "<") return expr1 < expr2;
@@ -433,54 +462,75 @@ const Z3Expr Module::calcExpr(const Z3Expr &expr1, const string &currentOperator
     if (currentOperator == "*") return expr1 * expr2;
     if (currentOperator == "/") return expr1 / expr2;
 
-    cerr << "不支持的运算符" << currentOperator << endl;
+    logger->error("不支持的运算符\"%s\"", currentOperator.c_str());
     return expr1;
 }
 
-bool Module::verify(const State *nextState, const map<string, string> &varValueMap) {
+EventVerifyResultEnum Model::verify(const State *nextState, const map<string, string> &varValueMap) {
+    int nextStateNum = nextState->getStateNum();
+
+    logger->debug("尝试转移到节点%d", nextStateNum);
+
     slv.push();
-    // 先添加下一状态中的全部Z3表达式
-    const vector<Z3Expr> &stateZ3ExprList = nextState->getZ3ExprList();
-    for (auto &z3Expr : stateZ3ExprList) {
-        slv.add(z3Expr);
-        cout << "添加下一状态中的表达式" << z3Expr << endl;
+    slvNegative.push();
+    // 先把下一状态中的全部Z3表达式求与
+    const vector<Z3Expr> &nextStateZ3Together = nextState->getZ3Together();
+    if (!nextStateZ3Together.empty()) {
+        slv.add(nextStateZ3Together[0]);
+        slvNegative.add(!nextStateZ3Together[0]);
     }
 
     // 再将事件上的变量全部构造成Z3表达式添加进去
-    int nextStateNum = nextState->getStateNum();
     for (auto &varValue : varValueMap) {
         string varType = varsDecl[varValue.first];
         if (varType.empty()) {
-            cerr << "事件中出现未定义的变量" << varValue.first << endl;
+            logger->error("事件中出现未定义的变量%s", varValue.first.c_str());
             continue;
         }
 
         if (varType == "int") {
-//            slv.add(this->ctx.int_const((varValue.first + std::to_string(nextStateNum)).c_str()) == this->ctx.int_val(varValue.second.c_str()));
-            Z3Expr z3Expr = this->ctx.int_const((varValue.first + std::to_string(nextStateNum)).c_str()) == this->ctx.int_val(varValue.second.c_str());
+            Z3Expr z3Expr = this->ctx.int_const(
+                    (varValue.first + std::to_string(nextStateNum)).c_str())
+                            == this->ctx.int_val(varValue.second.c_str());
             slv.add(z3Expr);
-            cout << "添加事件上的表达式" << z3Expr << endl;
+            slvNegative.add(z3Expr);
+            logger->debug("添加事件上变量值构成的表达式%s", z3Expr);
         } else if (varType == "double") {
-            slv.add(this->ctx.real_const((varValue.first + std::to_string(nextStateNum)).c_str()) == this->ctx.real_val(varValue.second.c_str()));
+            Z3Expr z3Expr = this->ctx.real_const(
+                    (varValue.first + std::to_string(nextStateNum)).c_str())
+                            == this->ctx.real_val(varValue.second.c_str());
+            slv.add(z3Expr);
+            slvNegative.add(z3Expr);
+            logger->debug("添加事件上变量值构成的表达式%s", z3Expr);
         } else if (varType == "bool") {
-            slv.add(this->ctx.bool_const((varValue.first + std::to_string(nextStateNum)).c_str()) == this->ctx.bool_val(varValue.second == "true"));
+            Z3Expr z3Expr = this->ctx.bool_const(
+                    (varValue.first + std::to_string(nextStateNum)).c_str())
+                            == this->ctx.bool_val(varValue.second == "true");
+            slv.add(z3Expr);
+            slvNegative.add(z3Expr);
+            logger->debug("添加事件上变量值构成的表达式%s", z3Expr);
         }
     }
 
-    clock_t startTime, endTime;
-    startTime = clock();
+    z3::check_result positiveResult = slv.check();
+    z3::check_result negativeResult = slvNegative.check();
 
-    if (slv.check() == z3::sat) {
-        endTime = clock();
-        cout << "check time:" << (double)(endTime - startTime) / CLOCKS_PER_SEC * 1000 << "ms" << endl;
-        cout << "startTime:" << startTime << ",endTime:" << endTime << endl;
-        return true;
-    } else {
-        endTime = clock();
-        cout << "check time:" << (double)(endTime - startTime) / CLOCKS_PER_SEC * 1000 << "ms" << endl;
-        cout << "startTime:" << startTime << ",endTime:" << endTime << endl;
+    if (positiveResult == z3::unsat) {
+        logger->info("尝试转移到节点%d失败", nextStateNum);
         slv.pop();
+        slvNegative.pop();
         currentFailedStates.insert(nextState);
-        return false;
+        return EventVerifyResultEnum::refuse;
+    }
+    else if (negativeResult == z3::sat) {
+        logger->info("尝试转移到节点%d未定", nextStateNum);
+        slv.pop();
+        slvNegative.pop();
+        currentFailedStates.insert(nextState);
+        return EventVerifyResultEnum::undetermined;
+    }
+    else  {
+        logger->info("尝试转移到节点%d成功", nextStateNum);
+        return EventVerifyResultEnum::accept;
     }
 }

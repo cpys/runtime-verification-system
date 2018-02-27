@@ -8,6 +8,7 @@
 #include <vector>
 #include <string>
 #include <z3++.h>
+#include <Logger.h>
 
 class Tran;
 
@@ -70,6 +71,11 @@ class State {
      */
     const vector<Z3Expr> &getZ3ExprList() const;
     /**
+     * 获取节点上Z3表达式的与结果，以列表形式返回，但只有首元素有效
+     * @return
+     */
+    const vector<Z3Expr> &getZ3Together() const;
+    /**
      * 获取可到达下一状态的转移关系列表
      * @return 相邻转移列表
      */
@@ -104,7 +110,12 @@ class State {
      * 节点的所有相邻出转移
      */
     vector<const Tran *> outTranList;
+    /**
+     * 节点的全部Z3表达式的与，vector只保留首元素
+     */
+    vector<Z3Expr> z3ExprTogether;
 
+    Logger *logger = Logger::getLogger();
 };
 
 

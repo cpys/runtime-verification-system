@@ -10,10 +10,11 @@
 #include <map>
 #include <set>
 #include <z3++.h>
-#include <ctime>
-
-#include "State.h"
-#include "Tran.h"
+#include <Logger.h>
+#include <EventVerifyResultEnum.h>
+#include <State.h>
+#include <Tran.h>
+#include <Event.h>
 
 using std::string;
 using std::vector;
@@ -23,10 +24,10 @@ using z3::context;
 using z3::solver;
 using Z3Expr = z3::expr;
 
-class Module {
+class Model {
   public:
-    Module();
-    ~Module();
+    Model();
+    ~Model();
 
     /**
      * 添加变量声明
@@ -52,6 +53,18 @@ class Module {
      * @param stateExprStrList 状态节点上的字符串表达式列表
      */
     void addState(int stateNum, const vector<string> &stateExprStrList);
+
+    /**
+     * 设置节点为起始节点
+     * @param stateNum 节点编号
+     */
+    void setStartState(int stateNum);
+
+    /**
+     * 设置节点为终止节点
+     * @param stateNum 节点编号
+     */
+    void setEndState(int stateNum);
     /**
      * 添加状态节点转移定义
      * @param tranName 转移名称
@@ -65,12 +78,11 @@ class Module {
      */
     void addSpec(const string &specStr);
     /**
-     * 添加事件，返回事件验证结果
-     * @param eventName 事件名称
-     * @param varValueMap 变量名:变量值 映射表
+     * 验证事件，返回事件验证结果
+     * @param event 事件
      * @return 事件验证结果
      */
-    bool addEvent(const string &eventName, const map<string, string> &varValueMap);
+    EventVerifyResultEnum verifyEvent(const Event *event);
 
     /**
      * 初始化模型，进行虚拟空节点检查
@@ -78,7 +90,7 @@ class Module {
      * 指定当前节点为起始节点
      * @return 初始化结果
      */
-    bool initModule();
+    bool initModel();
 
   private:
     /**
@@ -135,11 +147,10 @@ class Module {
      * Z3求解器
      */
     solver slv;
-//    /**
-//     * 所有的变量序号对应的Z3表达式
-//     * 变量名称:(变量序号：Z3表达式)
-//     */
-//    map<string, map<int, Z3Expr> > z3VarsNumExpr;
+    /**
+     * Z3反面求解器
+     */
+    solver slvNegative;
 
     /**
      * 将字符串形式的表达式转成Z3表达式
@@ -188,7 +199,9 @@ class Module {
      * @param varValueMap 事件上的变量名：变量值 映射表
      * @return 验证结果
      */
-    bool verify(const State *nextState, const map<string, string> &varValueMap);
+    EventVerifyResultEnum verify(const State *nextState, const map<string, string> &varValueMap);
+
+    Logger *logger = Logger::getLogger();
 };
 
 

@@ -1,19 +1,28 @@
 cmake_minimum_required(VERSION 3.5)
 project(runtime-verification-system)
 
-include_directories(${PROJECT_SOURCE_DIR}/src/DFA)
-include_directories(${PROJECT_SOURCE_DIR}/src/tinyxml2)
+set(CMAKE_CXX_STANDARD 11)
 
-set(EXECUTABLE_OUTPUT_PATH ${PROJECT_BINARY_DIR}/bin)
+link_directories(D:\\Users\\chenkuan\\ClionProjects\\tinylog\\lib)
+link_directories(D:\\Users\\chenkuan\\ClionProjects\\tinyxml2\\lib)
+link_directories(D:\\software\\compilerandalgorithm\\z3\\z3-4.6.0-x86-win\\bin)
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
+include_directories(headers/DFA)
+include_directories(D:\\Users\\chenkuan\\ClionProjects\\tinylog\\headers)
+include_directories(D:\\Users\\chenkuan\\ClionProjects\\tinyxml2\\headers)
+include_directories(D:\\software\\compilerandalgorithm\\z3\\z3-4.6.0-x86-win\\include)
 
-aux_source_directory(src/rvsDFA rvsDFA)
-aux_source_directory(src/tinyxml2 tinyxml2)
 aux_source_directory(src/DFA DFA)
 
-set(src ${tinyxml2} ${DFA} src/rvsDFATestSelf.cpp )
+set(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/bin)
+set(LIBRARY_OUTPUT_PATH  ${PROJECT_SOURCE_DIR}/lib)
 
-add_executable(rvs ${src})
+add_executable(rvsDFATest ${DFA} src/rvsDFATestSelf.cpp)
+target_link_libraries(rvsDFATest z3)
+target_link_libraries(rvsDFATest tinylog)
+target_link_libraries(rvsDFATest tinyxml2)
 
-target_link_libraries(rvs z3)
+add_library(rvsDFA SHARED ${DFA})
+target_link_libraries(rvsDFA z3)
+target_link_libraries(rvsDFA tinylog)
+target_link_libraries(rvsDFA tinyxml2)

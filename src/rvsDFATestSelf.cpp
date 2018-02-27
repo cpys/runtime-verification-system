@@ -2,7 +2,7 @@
 #include <cstring>
 #include <csignal>
 #include <sstream>
-#include <Module.h>
+#include <Model.h>
 
 using std::cout;
 using std::cin;
@@ -10,8 +10,10 @@ using std::cerr;
 using std::endl;
 
 int main() {
+
+    cout << "begin" << endl;
     // 建立模型
-    Module* module = new Module();
+    Model* module = new Model();
 
     module->addVarDecl("int", "x");
 
@@ -20,6 +22,8 @@ int main() {
     module->addState(3, {"x >= 20", "x < 30"});
     module->addState(4, {"x >= 30", "x < 40"});
     module->addEndState(5, {"x >= 40", "x < 50"});
+
+    cout << "begin2" << endl;
 
     module->addTran("increase", 1, 2);
     module->addTran("increase", 2, 3);
@@ -35,26 +39,28 @@ int main() {
     module->addSpec("x3 - x1 <= 20");
     module->addSpec("x5 - x3 <= 20");
 
-    if (!module->initModule()) {
+    if (!module->initModel()) {
         cerr << "模型初始化失败！" << endl;
         return -1;
     }
 
     // 模型建立完成后，开始添加事件
-    module->addEvent("increase", {{"x", "12"}});
-    module->addEvent("increase", {{"x", "18"}});
-    module->addEvent("increase", {{"x", "29"}});
-    module->addEvent("decrease", {{"x", "7"}});
-    module->addEvent("increase", {{"x", "26"}});
-    module->addEvent("increase", {{"x", "43"}});
-    module->addEvent("decrease", {{"x", "19"}});
-    module->addEvent("decrease", {{"x", "25"}});
-    module->addEvent("increase", {{"x", "37"}});
-    module->addEvent("increase", {{"x", "49"}});
+    module->verifyEvent(nullptr);
+    module->verifyEvent(nullptr);
+    module->verifyEvent(nullptr);
+    module->verifyEvent(nullptr);
+    module->verifyEvent(nullptr);
+    module->verifyEvent(nullptr);
+    module->verifyEvent(nullptr);
+    module->verifyEvent(nullptr);
+    module->verifyEvent(nullptr);
+    module->verifyEvent(nullptr);
 
     // 手动输入事件
     while (true) {
-        cout << "请输入事件名称：（输入event_end结束）" << endl;
+        cout << "what?" << endl;
+        cout << "中文呢" << endl;
+        printf("请输入事件名称：（输入event_end结束）\n");
         string eventName;
         cin >> eventName;
         if (eventName == "event_end") break;
@@ -67,7 +73,7 @@ int main() {
             vars[varName] = varValue;
             cin >> varName;
         }
-        module->addEvent(eventName, vars);
+        module->verifyEvent(nullptr);
     }
 
     return 0;

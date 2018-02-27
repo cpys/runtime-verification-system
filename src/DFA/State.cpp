@@ -2,9 +2,7 @@
 // Created by yingzi on 2017/11/30.
 //
 
-#include <iostream>
 #include "State.h"
-using namespace std;
 
 void State::setStateNum(int stateNum) {
     this->stateNum = stateNum;
@@ -21,6 +19,12 @@ void State::setEndFlag(bool endFlag) {
 
 void State::addZ3Expr(const Z3Expr &z3Expr) {
     z3ExprList.push_back(z3Expr);
+    if (z3ExprTogether.empty()) {
+        z3ExprTogether.push_back(z3Expr);
+    }
+    else {
+        z3ExprTogether[0] = (z3ExprTogether[0] && z3Expr);
+    }
 }
 
 void State::addTran(const Tran *tran) {
@@ -45,6 +49,10 @@ bool State::isEndState() const {
 
 const vector<Z3Expr> &State::getZ3ExprList() const {
     return z3ExprList;
+}
+
+const vector<Z3Expr> &State::getZ3Together() const {
+    return z3ExprTogether;
 }
 
 const vector<const Tran *> &State::getTranList() const {
