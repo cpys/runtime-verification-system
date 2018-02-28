@@ -118,8 +118,8 @@ void Model::addSpec(const string &specStr) {
     specZ3ExprVector.push_back(z3Expr);
 }
 
-EventVerifyResultEnum Model::verifyEvent(const Event *event) {
-    if (event == nullptr) return EventVerifyResultEnum::refuse;
+EventVerifyResult Model::verifyEvent(const Event *event) {
+    if (event == nullptr) return EventVerifyResult();
     logger->debug("当前节点为节点%d，开始尝试转移", currentState->getStateNum());
 
     // 如果当前是起始节点，则需要添加起始节点的表达式和SPEC表达式
@@ -156,7 +156,7 @@ EventVerifyResultEnum Model::verifyEvent(const Event *event) {
     currentFailedStates.clear();
 
     // 假设不能转移
-    EventVerifyResultEnum result = EventVerifyResultEnum::refuse;
+    EventVerifyResult result;
     const State *nextState = nullptr;
 
     // 先查看当前状态能否转移到相邻状态
@@ -165,42 +165,85 @@ EventVerifyResultEnum Model::verifyEvent(const Event *event) {
         nextState = tran->getDestState();
         if (tran->getTranName() == event->getEventName()) {
             // 取最小值表示取更好的结果
-            result = std::min(result, this->verify(nextState, event->getVarValueMap()));
-            if (result == EventVerifyResultEnum::accept) {
+            EventVerifyResultEnum nextStateResult =  this->verify(nextState, event->getVarValueMap());
+            if (nextStateResult < result.resultEnum) {
+                result.resultEnum = nextStateResult;
+                result.nextState = nextState;
+            }
+            if (nextStateResult == EventVerifyResultEnum::accept) {
                 break;
             }
         }
     }
 
     // 如果无法转移到相邻状态或者转移到相邻状态验证失败则在全局中搜索转移
-    if (!result) {
+    if (result.resultEnum != EventVerifyResultEnum::accept) {
         for (auto &tran : trans) {
             nextState = tran->getDestState();
             if (tran->getSourceState() != currentState
                 && tran->getTranName() == event->getEventName()
                 && currentFailedStates.find(nextState) == currentFailedStates.end()) {
-                result = std::min(result, this->verify(nextState, event->getVarValueMap()));
-                if (result == EventVerifyResultEnum::accept) {
+                // 取最小值表示取更好的结果
+                EventVerifyResultEnum nextStateResult =  this->verify(nextState, event->getVarValueMap());
+                if (nextStateResult < result.resultEnum) {
+                    result.resultEnum = nextStateResult;
+                    result.nextState = nextState;
+                }
+                if (nextStateResult == EventVerifyResultEnum::accept) {
                     break;
                 }
             }
         }
     }
 
-    if (result == EventVerifyResultEnum::accept) {
-        logger->info("事件\"%s\"导致节点%d转移到节点%d", event->getEventName().c_str(), currentState->getStateNum(), nextState->getStateNum());
-        currentState = const_cast<State *>(nextState);
-        this->stateTrace.push_back(currentState);
-    }
-    else if (result == EventVerifyResultEnum::undetermined) {
-        logger->info("事件\"%s\"转移结果待定", event->getEventName().c_str());
-    }
-    else if (result == EventVerifyResultEnum::refuse){
-        logger->warning("事件\"%s\"无法转移", event->getEventName().c_str());
-    }
-
     return result;
 }
+
+void Model::transferEvent(const Event *event, const State *nextState) {
+    if (nextState == nullptr) return;
+
+    // 先把下一状态中的全部Z3表达式求与
+    const vector<Z3Expr> &nextStateZ3Together = nextState->getZ3Together();
+    if (!nextStateZ3Together.empty()) {
+        slv.add(nextStateZ3Together[0]);
+        slvNegative.add(!nextStateZ3Together[0]);
+    }
+
+    logger->info("事件\"%s\"导致节点%d转移到节点%d", event->getEventName().c_str(), currentState->getStateNum(), nextState->getStateNum());
+    currentState = const_cast<State *>(nextState);
+    this->stateTrace.push_back(currentState);
+}
+
+
+vector<EventVerifyResult> Model::verifyEventList(const vector<const Event *> &eventList) {
+    if (eventList.empty()) return {};
+
+    vector<EventVerifyResult> resultList;
+
+    // 先尝试让最新的事件转移
+    EventVerifyResult latestEventResult = verifyEvent(eventList.back());
+    // 如果最新事件转移结果确定则依次转移前面事件
+    if (latestEventResult.resultEnum != undetermined) {
+        bool determined = true;
+        for (int i = 0; i < eventList.size() - 1; ++i) {
+            EventVerifyResult result = verifyEvent(eventList[i]);
+            if (result.resultEnum == undetermined) {
+                determined = false;
+            }
+        }
+        resultList.push_back(latestEventResult);
+        if (determined) {
+            return resultList;
+        }
+    }
+
+    // 如果前述方法不能得到全部确定结果，则只能顺次转移返回
+    for (int i = 0; i < eventList.size(); ++i) {
+        resultList[i] = verifyEvent(eventList[i]);
+    }
+    return resultList;
+};
+
 
 bool Model::initModel() {
     int num = 0;
@@ -515,17 +558,16 @@ EventVerifyResultEnum Model::verify(const State *nextState, const map<string, st
     z3::check_result positiveResult = slv.check();
     z3::check_result negativeResult = slvNegative.check();
 
+    slv.pop();
+    slvNegative.pop();
+
     if (positiveResult == z3::unsat) {
         logger->info("尝试转移到节点%d失败", nextStateNum);
-        slv.pop();
-        slvNegative.pop();
         currentFailedStates.insert(nextState);
         return EventVerifyResultEnum::refuse;
     }
     else if (negativeResult == z3::sat) {
         logger->info("尝试转移到节点%d未定", nextStateNum);
-        slv.pop();
-        slvNegative.pop();
         currentFailedStates.insert(nextState);
         return EventVerifyResultEnum::undetermined;
     }

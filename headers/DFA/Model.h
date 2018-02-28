@@ -11,7 +11,7 @@
 #include <set>
 #include <z3++.h>
 #include <Logger.h>
-#include <EventVerifyResultEnum.h>
+#include <EventVerifyResult.h>
 #include <State.h>
 #include <Tran.h>
 #include <Event.h>
@@ -82,7 +82,19 @@ class Model {
      * @param event 事件
      * @return 事件验证结果
      */
-    EventVerifyResultEnum verifyEvent(const Event *event);
+    EventVerifyResult verifyEvent(const Event *event);
+    /**
+     * 命令模型根据事件转移到下一个指定状态
+     * @param event
+     * @param nextState
+     */
+    void transferEvent(const Event *event, const State *nextState);
+    /**
+     * 验证连续多条事件。如存在全部确定结果则返回，不存在则返回依次执行结果
+     * @param eventList
+     * @return
+     */
+    vector<EventVerifyResult> verifyEventList(const vector<const Event *> &eventList);
 
     /**
      * 初始化模型，进行虚拟空节点检查
