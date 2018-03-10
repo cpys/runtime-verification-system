@@ -8,7 +8,6 @@
 using std::stack;
 
 Model::Model() : slv(ctx), slvNegative(ctx) {
-
 }
 
 Model::~Model() {
@@ -70,6 +69,7 @@ void Model::setStartState(int stateNum) {
     startState = state;
     startState->setStartFlag(true);
     logger->info("节点%d成为了起始节点", startState->getStateNum());
+
 }
 
 void Model::setEndState(int stateNum) {
@@ -121,7 +121,6 @@ void Model::addSpec(const string &specStr) {
 EventVerifyResult Model::verifyEvent(const Event *event) {
     if (event == nullptr) return EventVerifyResult();
     logger->debug("当前节点为节点%d，开始尝试转移", currentState->getStateNum());
-
     // 如果当前是起始节点，则需要添加起始节点的表达式和SPEC表达式
     if (currentState == startState) {
         for (auto &z3Expr : startState->getZ3ExprList()) {
@@ -195,7 +194,6 @@ EventVerifyResult Model::verifyEvent(const Event *event) {
             }
         }
     }
-
     return result;
 }
 
@@ -213,7 +211,6 @@ void Model::transferEvent(const Event *event, const State *nextState) {
     currentState = const_cast<State *>(nextState);
     this->stateTrace.push_back(currentState);
 }
-
 
 vector<EventVerifyResult> Model::verifyEventList(const vector<const Event *> &eventList) {
     if (eventList.empty()) return {};
@@ -243,7 +240,6 @@ vector<EventVerifyResult> Model::verifyEventList(const vector<const Event *> &ev
     }
     return resultList;
 };
-
 
 bool Model::initModel() {
     int num = 0;
