@@ -169,14 +169,14 @@ EventVerifyResult Model::verifyEvent(const Event *event) {
                 result.resultEnum = nextStateResult;
                 result.nextState = nextState;
             }
-            if (nextStateResult == EventVerifyResultEnum::accept) {
+            if (nextStateResult == EventVerifyResultEnum::pass) {
                 break;
             }
         }
     }
 
     // 如果无法转移到相邻状态或者转移到相邻状态验证失败则在全局中搜索转移
-    if (result.resultEnum != EventVerifyResultEnum::accept) {
+    if (result.resultEnum != EventVerifyResultEnum::pass) {
         for (auto &tran : trans) {
             nextState = tran->getDestState();
             if (tran->getSourceState() != currentState
@@ -188,7 +188,7 @@ EventVerifyResult Model::verifyEvent(const Event *event) {
                     result.resultEnum = nextStateResult;
                     result.nextState = nextState;
                 }
-                if (nextStateResult == EventVerifyResultEnum::accept) {
+                if (nextStateResult == EventVerifyResultEnum::pass) {
                     break;
                 }
             }
@@ -569,6 +569,6 @@ EventVerifyResultEnum Model::verify(const State *nextState, const map<string, st
     }
     else  {
         logger->info("尝试转移到节点%d成功", nextStateNum);
-        return EventVerifyResultEnum::accept;
+        return EventVerifyResultEnum::pass;
     }
 }

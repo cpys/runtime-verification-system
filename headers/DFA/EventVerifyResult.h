@@ -9,12 +9,12 @@
 
 /**
  * 事件验证结果的几种状态
- * accept, 指该事件明确可以通过，将造成状态机的转移变化
+ * pass, 指该事件明确可以通过，将造成状态机的转移变化
  * undetermined, 指该事件可通过可不通过，不对状态机作转移变化
  * refuse, 指该事件不可通过，不对状态机作转移变化
  */
 enum EventVerifyResultEnum {
-    accept,
+    pass,
     undetermined,
     refuse
 };
