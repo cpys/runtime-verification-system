@@ -3,15 +3,23 @@ project(runtime-verification-system)
 
 set(CMAKE_CXX_STANDARD 11)
 
-link_directories(D:\\Users\\chenkuan\\ClionProjects\\tinylog\\lib)
-link_directories(D:\\Users\\chenkuan\\ClionProjects\\tinyxml2\\lib)
-link_directories(D:\\software\\compilerandalgorithm\\z3\\z3-4.6.0-x86-win\\bin)
+if (WIN32)
+    link_directories(D:\\Users\\chenkuan\\ClionProjects\\tinylog\\lib)
+    link_directories(D:\\Users\\chenkuan\\ClionProjects\\tinyxml2\\lib)
+    link_directories(D:\\software\\compilerandalgorithm\\z3\\z3-4.6.0-x86-win\\bin)
+
+    include_directories(D:\\Users\\chenkuan\\ClionProjects\\tinylog\\headers)
+    include_directories(D:\\Users\\chenkuan\\ClionProjects\\tinyxml2\\headers)
+    include_directories(D:\\software\\compilerandalgorithm\\z3\\z3-4.6.0-x86-win\\include)
+elseif(UNIX)
+    link_directories(/home/chenkuan/CLionProjects/tinylog/lib)
+    link_directories(/home/chenkuan/CLionProjects/tinyxml2/lib)
+
+    include_directories(/home/chenkuan/CLionProjects/tinylog/headers)
+    include_directories(/home/chenkuan/CLionProjects/tinyxml2/headers)
+endif()
 
 include_directories(headers/DFA)
-include_directories(D:\\Users\\chenkuan\\ClionProjects\\tinylog\\headers)
-include_directories(D:\\Users\\chenkuan\\ClionProjects\\tinyxml2\\headers)
-include_directories(D:\\software\\compilerandalgorithm\\z3\\z3-4.6.0-x86-win\\include)
-
 aux_source_directory(src/DFA DFA)
 
 set(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/bin)
